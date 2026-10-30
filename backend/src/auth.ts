@@ -127,7 +127,9 @@ export async function requestEmailOtp(request: Request, response: Response) {
   const parsed = emailOtpRequestSchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) return response.status(503).json({ error: 'email_delivery_unconfigured' });
+  if (!apiKey && process.env.NODE_ENV === 'production') {
+    return response.status(503).json({ error: 'email_delivery_unconfigured' });
+  }
   const phone = parsed.data.phone.startsWith('+') ? parsed.data.phone : `+${parsed.data.phone}`;
   const email = parsed.data.email.toLowerCase();
   const recent = await pool.query<{ minute_count: string; hour_count: string }>(`SELECT
@@ -142,6 +144,9 @@ export async function requestEmailOtp(request: Request, response: Response) {
   const otp = randomInt(0, 1_000_000).toString().padStart(6, '0');
   await pool.query(`INSERT INTO auth_challenges(id,phone,email,code_hash,role,expires_at)
     VALUES($1,$2,$3,$4,$5,now() + interval '10 minutes')`, [challengeId, phone, email, otpDigest(challengeId, otp), parsed.data.role]);
+  if (!apiKey) {
+    return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email, developmentOtp: otp, delivery: 'local_fallback' });
+  }
   try {
     const delivery = await fetch('https://api.resend.com/emails', {
       method: 'POST',
