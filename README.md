@@ -36,6 +36,8 @@ In Vercel, set `VITE_API_BASE_URL` to the public Render API URL followed by `/ap
 
 Production requires `NODE_ENV=production`, HTTPS, a Resend-verified sending domain, and a production `RESEND_FROM_EMAIL`. The development OTP fallback is disabled in production. Resend's test sender is suitable only for limited testing and cannot be treated as unrestricted production email delivery.
 
+If Render logs show `Running 'yarn start'`, the existing Render service is using stale dashboard settings instead of [`render.yaml`](./render.yaml). In the Render service settings, set **Root Directory** to `backend`, **Build Command** to `npm ci && npm run build`, and **Start Command** to `npm run migrate && npm start`. Do not use `yarn start`. Save the settings and trigger a manual redeploy.
+
 ## Backend phase status
 
 ### Implemented in Phase 1
