@@ -18,6 +18,7 @@ backend/.env
 backend/node_modules
 backend/dist
 .local/
+.jetro/
 
 # Editor directories and files
 .vscode/*
