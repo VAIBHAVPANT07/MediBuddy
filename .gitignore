@@ -29,3 +29,8 @@ backend/dist
 *.njsproj
 *.sln
 *.sw?
+
+# Large datasets - excluded from GitHub
+csv/imaging_studies.csv
+csv/observations.csv
+csv/claims_transactions.csv
