@@ -9,9 +9,21 @@ import { login, logout, refresh, register, requestEmailOtp, requireAuth, require
 const app = express();
 const port = Number(process.env.API_PORT ?? 3001);
 const host = process.env.API_HOST ?? '127.0.0.1';
+const webOrigin = process.env.WEB_ORIGIN;
 app.disable('x-powered-by');
 app.use(helmet());
 app.use(express.json({ limit: '32kb', strict: true }));
+app.use((request, response, next) => {
+  if (webOrigin) {
+    response.setHeader('Access-Control-Allow-Origin', webOrigin);
+    response.setHeader('Access-Control-Allow-Credentials', 'true');
+    response.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    response.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    response.setHeader('Vary', 'Origin');
+  }
+  if (request.method === 'OPTIONS') return response.sendStatus(204);
+  return next();
+});
 app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-7', legacyHeaders: false }));
 const asyncRoute = (handler: RequestHandler): RequestHandler => (request, response, next) => {
   Promise.resolve(handler(request, response, next)).catch(next);

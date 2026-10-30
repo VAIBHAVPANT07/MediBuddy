@@ -15,8 +15,10 @@ export interface AppointmentRecord {
 export interface PatientRecord { patientId:string; name:string; birthDate?:string; village?:string; district?:string; lastVisit?:string }
 export interface PharmacyMedicine { id:string; name:string; category:string|null; stock:number; price:number; expiry?:string }
 
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '/api').replace(/\/$/, '');
+
 async function apiRequest<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`/api${path}`, {
+  const response = await fetch(`${apiBaseUrl}${path}`, {
     ...init,
     credentials: 'include',
     headers: { 'Content-Type': 'application/json', ...init.headers },

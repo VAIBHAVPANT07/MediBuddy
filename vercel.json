@@ -1,0 +1,5 @@
+{
+  "buildCommand": "corepack pnpm install --frozen-lockfile && corepack pnpm build",
+  "outputDirectory": "dist",
+  "framework": "vite"
+}

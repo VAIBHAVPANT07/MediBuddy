@@ -33,6 +33,7 @@ if (process.env.NODE_ENV === 'production' && secret.length < 32) {
 }
 const jwtSecret = secret || 'local-development-only-change-before-deployment-9f2f71b2';
 const isSecure = process.env.NODE_ENV === 'production';
+const sameSite = process.env.NODE_ENV === 'production' && process.env.WEB_ORIGIN ? 'None' : 'Lax';
 
 interface SessionUser { id: string; role: string; phone: string | null; email: string | null }
 export interface AuthenticatedRequest extends Request { user?: SessionUser }
@@ -46,15 +47,15 @@ function cookies(request: Request) {
 function setAuthCookies(response: Response, access: string, refresh: string) {
   const secure = isSecure ? '; Secure' : '';
   response.setHeader('Set-Cookie', [
-    `${accessCookie}=${access}; HttpOnly; SameSite=Lax; Path=/api${secure}; Max-Age=900`,
-    `${refreshCookie}=${refresh}; HttpOnly; SameSite=Lax; Path=/api/auth${secure}; Max-Age=2592000`,
+    `${accessCookie}=${access}; HttpOnly; SameSite=${sameSite}; Path=/api${secure}; Max-Age=900`,
+    `${refreshCookie}=${refresh}; HttpOnly; SameSite=${sameSite}; Path=/api/auth${secure}; Max-Age=2592000`,
   ]);
 }
 function clearAuthCookies(response: Response) {
   const secure = isSecure ? '; Secure' : '';
   response.setHeader('Set-Cookie', [
-    `${accessCookie}=; HttpOnly; SameSite=Lax; Path=/api${secure}; Max-Age=0`,
-    `${refreshCookie}=; HttpOnly; SameSite=Lax; Path=/api/auth${secure}; Max-Age=0`,
+    `${accessCookie}=; HttpOnly; SameSite=${sameSite}; Path=/api${secure}; Max-Age=0`,
+    `${refreshCookie}=; HttpOnly; SameSite=${sameSite}; Path=/api/auth${secure}; Max-Age=0`,
   ]);
 }
 async function issueSession(user: SessionUser, response: Response) {

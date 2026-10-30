@@ -23,6 +23,19 @@ Development OTP delivery falls back to a one-time code shown in the sign-in scre
 
 For a non-container API process, copy `backend/.env.example` to `backend/.env`, start PostgreSQL with matching credentials, then run `cd backend && npm ci && npm run migrate && npm run dev`. Run frontend Vite separately.
 
+## Production deployment
+
+The repository includes deployment configuration for a Vercel frontend and Render API:
+
+- [`vercel.json`](./vercel.json) builds and serves the Vite frontend.
+- [`render.yaml`](./render.yaml) builds the API, runs idempotent migrations on startup, and exposes `/api/health`.
+
+Create a managed PostgreSQL database and set the Render service variables `DATABASE_URL`, `JWT_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `WEB_ORIGIN`. `WEB_ORIGIN` must be the exact Vercel URL, including `https://`, for example `https://medibuddy.vercel.app`. Set `DATABASE_SSL=true` for a hosted database.
+
+In Vercel, set `VITE_API_BASE_URL` to the public Render API URL followed by `/api`, for example `https://medibuddy-api.onrender.com/api`. Do not put database credentials, JWT secrets, or Resend keys in Vercel variables or committed files.
+
+Production requires `NODE_ENV=production`, HTTPS, a Resend-verified sending domain, and a production `RESEND_FROM_EMAIL`. The development OTP fallback is disabled in production. Resend's test sender is suitable only for limited testing and cannot be treated as unrestricted production email delivery.
+
 ## Backend phase status
 
 ### Implemented in Phase 1
