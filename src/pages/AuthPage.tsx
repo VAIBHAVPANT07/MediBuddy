@@ -57,7 +57,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         description: message === 'email_delivery_unconfigured'
           ? 'Email delivery is not configured on the API.'
           : message === 'email_delivery_failed'
-            ? 'Check the API sender address and Resend domain setup, then try again.'
+            ? 'Resend rejected the message. Check your API key, sender address, and recipient restrictions.'
             : message === 'otp_rate_limited'
               ? 'A code was sent recently. Wait a minute before requesting another.'
             : 'Check the phone number, email address, and API connection.',

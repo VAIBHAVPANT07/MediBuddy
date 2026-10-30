@@ -162,12 +162,10 @@ export async function requestEmailOtp(request: Request, response: Response) {
       signal: AbortSignal.timeout(10_000),
     });
     if (!delivery.ok) {
-      if (process.env.NODE_ENV !== 'production') return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email, developmentOtp: otp, delivery: 'local_fallback' });
       await pool.query('UPDATE auth_challenges SET consumed_at=now() WHERE id=$1', [challengeId]);
       return response.status(502).json({ error: 'email_delivery_failed' });
     }
   } catch {
-    if (process.env.NODE_ENV !== 'production') return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email, developmentOtp: otp, delivery: 'local_fallback' });
     await pool.query('UPDATE auth_challenges SET consumed_at=now() WHERE id=$1', [challengeId]);
     return response.status(502).json({ error: 'email_delivery_failed' });
   }
