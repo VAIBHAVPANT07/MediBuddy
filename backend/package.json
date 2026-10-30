@@ -1,0 +1,33 @@
+{
+  "name": "medibuddy-api",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "build": "tsc -p tsconfig.json",
+    "migrate": "node dist/migrate.js",
+    "import:synthea": "node dist/importSynthea.js",
+    "seed:demo": "node dist/seedDemo.js",
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "argon2": "0.41.1",
+    "csv-parse": "5.6.0",
+    "dotenv": "16.6.1",
+    "express": "4.22.3",
+    "express-rate-limit": "7.5.1",
+    "helmet": "8.3.0",
+    "jsonwebtoken": "9.0.3",
+    "pg": "8.23.1",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "5.0.6",
+    "@types/jsonwebtoken": "9.0.10",
+    "@types/node": "22.20.5",
+    "@types/pg": "8.23.1",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3"
+  }
+}

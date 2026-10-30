@@ -16,4 +16,12 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: process.env.API_PROXY_TARGET || `http://127.0.0.1:${process.env.API_PORT || 3001}`,
+        changeOrigin: true,
+      },
+    },
+  },
 }));

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -8,20 +8,34 @@ import PatientPortal from './pages/PatientPortal';
 import DoctorPortal from './pages/DoctorPortal';
 import AdminPortal from './pages/AdminPortal';
 import SellerPortal from './pages/SellerPortal';
+import { logoutSession, refreshSession } from '@/lib/api';
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const [currentUser, setCurrentUser] = useState<{role: string} | null>(() => {
-    const savedRole = getFromStorage('userRole');
-    return savedRole ? { role: savedRole } : null;
-  });
+  const [currentUser, setCurrentUser] = useState<{role: string} | null>(null);
+
+  useEffect(() => {
+    refreshSession().then((session)=>{
+      const savedRole=getFromStorage('userRole');
+      if(savedRole && session.roles?.includes(savedRole))setCurrentUser({role:savedRole});
+      else if(session.roles?.length){saveRole(session.roles[0]);setCurrentUser({role:session.roles[0]});}
+    }).catch(() => {
+      localStorage.removeItem('userRole');
+      localStorage.removeItem('userMobile');
+      localStorage.removeItem('userAadhar');
+      setCurrentUser(null);
+    });
+  }, []);
+
+  const saveRole=(role:string)=>localStorage.setItem('userRole',role);
 
   const handleLogin = (role: string) => {
     setCurrentUser({ role });
   };
 
   const handleLogout = () => {
+    void logoutSession().catch(() => undefined);
     localStorage.removeItem('userRole');
     localStorage.removeItem('userMobile');
     localStorage.removeItem('userAadhar');

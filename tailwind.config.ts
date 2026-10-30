@@ -15,7 +15,14 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['"Inter Tight"', 'system-ui', 'sans-serif'],
+        display: ['"Instrument Serif"', 'Georgia', 'serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
       colors: {
+        role: "hsl(var(--role) / <alpha-value>)",
+        ink: "hsl(var(--ink) / <alpha-value>)",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

@@ -32,7 +32,7 @@ export const translations = {
     language: "Language"
   },
   hi: {
-    welcome: "ग्रामहेल्थ में आपका स्वागत है",
+    welcome: "मेडीबडी में आपका स्वागत है",
     selectRole: "अपनी भूमिका चुनें",
     patient: "मरीज़",
     doctor: "डॉक्टर",
@@ -56,7 +56,7 @@ export const translations = {
     language: "भाषा"
   },
   pa: {
-    welcome: "ਗ੍ਰਾਮਹੈਲਥ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ",
+    welcome: "ਮੈਡੀਬੱਡੀ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ",
     selectRole: "ਆਪਣੀ ਭੂਮਿਕਾ ਚੁਣੋ",
     patient: "ਮਰੀਜ਼",
     doctor: "ਡਾਕਟਰ",
