@@ -21,9 +21,5 @@ services:
         value: "10"
       - key: JWT_SECRET
         sync: false
-      - key: RESEND_API_KEY
-        sync: false
-      - key: RESEND_FROM_EMAIL
-        sync: false
       - key: WEB_ORIGIN
         sync: false

@@ -127,9 +127,8 @@ export async function login(request: Request, response: Response) {
 export async function requestEmailOtp(request: Request, response: Response) {
   const parsed = emailOtpRequestSchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey && process.env.NODE_ENV === 'production') {
-    return response.status(503).json({ error: 'email_delivery_unconfigured' });
+  if (process.env.NODE_ENV === 'production') {
+    return response.status(503).json({ error: 'email_delivery_unavailable' });
   }
   const phone = parsed.data.phone.startsWith('+') ? parsed.data.phone : `+${parsed.data.phone}`;
   const email = parsed.data.email.toLowerCase();
@@ -145,31 +144,7 @@ export async function requestEmailOtp(request: Request, response: Response) {
   const otp = randomInt(0, 1_000_000).toString().padStart(6, '0');
   await pool.query(`INSERT INTO auth_challenges(id,phone,email,code_hash,role,expires_at)
     VALUES($1,$2,$3,$4,$5,now() + interval '10 minutes')`, [challengeId, phone, email, otpDigest(challengeId, otp), parsed.data.role]);
-  if (!apiKey) {
-    return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email, developmentOtp: otp, delivery: 'local_fallback' });
-  }
-  try {
-    const delivery = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: process.env.RESEND_FROM_EMAIL ?? 'MediBuddy <onboarding@resend.dev>',
-        to: [email],
-        subject: 'Your MediBuddy sign-in code',
-        text: `Your MediBuddy verification code is ${otp}. It expires in 10 minutes. If you did not request it, you can ignore this email.`,
-        html: `<p>Your MediBuddy verification code is:</p><p style="font-size:28px;font-weight:700;letter-spacing:8px">${otp}</p><p>This code expires in 10 minutes. If you did not request it, you can ignore this email.</p>`,
-      }),
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!delivery.ok) {
-      await pool.query('UPDATE auth_challenges SET consumed_at=now() WHERE id=$1', [challengeId]);
-      return response.status(502).json({ error: 'email_delivery_failed' });
-    }
-  } catch {
-    await pool.query('UPDATE auth_challenges SET consumed_at=now() WHERE id=$1', [challengeId]);
-    return response.status(502).json({ error: 'email_delivery_failed' });
-  }
-  return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email });
+  return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email, developmentOtp: otp, delivery: 'local_fallback' });
 }
 
 export async function verifyEmailOtp(request: Request, response: Response) {

@@ -54,11 +54,9 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'email_delivery_failed';
       toast.error('Could not send verification email', {
-        description: message === 'email_delivery_unconfigured'
-          ? 'Email delivery is not configured on the API.'
-          : message === 'email_delivery_failed'
-            ? 'Resend rejected the message. Check your API key, sender address, and recipient restrictions.'
-            : message === 'otp_rate_limited'
+        description: message === 'email_delivery_unavailable'
+          ? 'Email verification is unavailable in production.'
+          : message === 'otp_rate_limited'
               ? 'A code was sent recently. Wait a minute before requesting another.'
             : 'Check the phone number, email address, and API connection.',
       });

@@ -9,15 +9,15 @@ Requirements: Node.js 22+, pnpm (via Corepack), and the configured local Postgre
 ### One-command local launch
 
 1. Install frontend and backend dependencies: `corepack pnpm install && cd backend && npm ci && npm run build && cd ..`.
-2. Copy `.env.example` to `.env` if needed. For local testing, use `NODE_ENV=development`, `API_PORT=3002`, and configure a Resend sender if you want real email OTP delivery.
+2. Copy `.env.example` to `.env` if needed. For local testing, use `NODE_ENV=development` and `API_PORT=3002`.
 3. Run `corepack pnpm dev:full` from the repository root and open **http://localhost:5175**. The API health check is **http://localhost:3002/api/health**.
 4. Press Ctrl+C to stop. To start again, run `corepack pnpm dev:full`.
 
-Development OTP delivery falls back to a one-time code shown in the sign-in screen when Resend cannot send email. This fallback is disabled in production. Local OTP signup allows choosing any portal role for convenience; production requires provisioned staff roles. Do not use real patient data in this prototype.
+Development OTP delivery uses a one-time code shown in the sign-in screen. OTP sign-in is disabled in production until an email provider is configured. Local OTP signup allows choosing any portal role for convenience; production requires provisioned staff roles. Do not use real patient data in this prototype.
 
 `corepack pnpm dev:stop` stops a launcher started with `dev:full`.
 
-1. Copy `.env.example` to `.env` and configure `RESEND_API_KEY` and a verified `RESEND_FROM_EMAIL` for actual email delivery.
+1. Copy `.env.example` to `.env`.
 2. For a Docker database/API use `docker compose up --build db api`; the standalone Vite server is started with `corepack pnpm dev`. Set the Vite proxy's `API_PORT` to `3001` for this Docker API configuration.
 3. Sign-in uses a six-digit, 10-minute email code. Phone is a contact field and is not SMS-verified. Email OTP is limited to one per minute and five per hour per phone/email pair.
 
@@ -30,11 +30,11 @@ The repository includes deployment configuration for a Vercel frontend and Rende
 - [`vercel.json`](./vercel.json) builds and serves the Vite frontend.
 - [`render.yaml`](./render.yaml) builds the API, runs idempotent migrations on startup, and exposes `/api/health`.
 
-Create a managed PostgreSQL database and set the Render service variables `DATABASE_URL`, `JWT_SECRET`, `RESEND_API_KEY`, `RESEND_FROM_EMAIL`, and `WEB_ORIGIN`. `WEB_ORIGIN` must be the exact Vercel URL, including `https://`, for example `https://medibuddy.vercel.app`. Set `DATABASE_SSL=true` for a hosted database.
+Create a managed PostgreSQL database and set the Render service variables `DATABASE_URL`, `JWT_SECRET`, and `WEB_ORIGIN`. `WEB_ORIGIN` must be the exact Vercel URL, including `https://`, for example `https://medibuddy.vercel.app`. Set `DATABASE_SSL=true` for a hosted database.
 
-In Vercel, set `VITE_API_BASE_URL` to the public Render API URL followed by `/api`, for example `https://medibuddy-api.onrender.com/api`. Do not put database credentials, JWT secrets, or Resend keys in Vercel variables or committed files.
+In Vercel, set `VITE_API_BASE_URL` to the public Render API URL followed by `/api`, for example `https://medibuddy-api.onrender.com/api`. Do not put database credentials or JWT secrets in Vercel variables or committed files.
 
-Production requires `NODE_ENV=production`, HTTPS, a Resend-verified sending domain, and a production `RESEND_FROM_EMAIL`. The development OTP fallback is disabled in production. Resend's test sender is suitable only for limited testing and cannot be treated as unrestricted production email delivery.
+Production requires `NODE_ENV=production`, HTTPS, and a production database. OTP sign-in is intentionally unavailable in production until an email provider is added.
 
 If Render logs show `Running 'yarn start'`, the existing Render service is using stale dashboard settings instead of [`render.yaml`](./render.yaml). In the Render service settings, set **Root Directory** to `backend`, **Build Command** to `npm ci && npm run build`, and **Start Command** to `npm run migrate && npm start`. Do not use `yarn start`. Save the settings and trigger a manual redeploy.
 
@@ -45,7 +45,7 @@ If Render logs show `Running 'yarn start'`, the existing Render service is using
 - Node.js/TypeScript API in `backend/`, PostgreSQL 15-compatible migration, local Compose service, health check, and OpenAPI JSON document.
 - Relational tables for users/roles, patient/doctor/seller profiles, organizations, appointments, encounters, prescriptions, vaccinations, medicines, timestamped stock entries, consent, audit, sync queue, and triage/model metadata.
 - Patient-only password registration, Argon2id password hashes, login, short-lived signed access cookies, rotating refresh cookies, logout revocation, and role middleware.
-- Email OTP delivery through Resend (with development-only fallback), Argon2id password registration/login, rotating refresh sessions, server-side role checks, and audited patient profile creation. Phone is a contact field and is not phone-verified.
+- Development-only local OTP, Argon2id password registration/login, rotating refresh sessions, server-side role checks, and audited patient profile creation. Phone is a contact field and is not phone-verified.
 - Appointment requests are persisted in PostgreSQL. Patients can list/request/cancel their own appointments; doctors can list only their assigned appointments, approve/reschedule/cancel them. Reads and writes are audited.
 - Patient/doctor records, doctor prescription creation, pharmacy inventory/catalog, and aggregated admin analytics are connected to API endpoints. Synthea physicians can be browsed for demo appointments while their synthetic login identities stay disabled.
 - Permission matrix and threat model: [`docs/permission_matrix.md`](docs/permission_matrix.md), [`docs/threat_model.md`](docs/threat_model.md), and [`docs/er_diagram.md`](docs/er_diagram.md).
@@ -82,7 +82,7 @@ The importer deterministically maps source locations to configured synthetic Utt
 | `GET` | `/api/health` | API and database readiness |
 | `POST` | `/api/auth/register` | Create patient account (password, phone/email) |
 | `POST` | `/api/auth/login` | Password login |
-| `POST` | `/api/auth/otp/request` | Send a six-digit email verification code through Resend |
+| `POST` | `/api/auth/otp/request` | Generate a development-only six-digit verification code |
 | `POST` | `/api/auth/otp/verify` | Verify email code and create/sign in to an account |
 | `POST` | `/api/auth/refresh` | Rotate refresh session |
 | `POST` | `/api/auth/logout` | Revoke refresh session and clear cookies |
@@ -127,7 +127,7 @@ erDiagram
 
 ## Security and clinical boundaries
 
-- Production must set a high-entropy `JWT_SECRET`, a Resend key and verified sender, real database credentials, HTTPS, and a private DB network. Email OTP verifies the email address; it does not verify possession of the entered mobile number.
+- Production must set a high-entropy `JWT_SECRET`, real database credentials, HTTPS, and a private DB network. Development OTP is not an email or phone verification mechanism.
 - Refresh tokens are opaque, stored as SHA-256 digests, rotated on refresh, and revocable. Access and refresh values are set as HttpOnly cookies. Add a deployment-specific CSRF/Origin policy before exposing the API cross-site.
 - Public password registration can create patient accounts only. Doctor, seller, and administrator roles require trusted provisioning; the portal selector can self-assign roles only in local development.
 - Administrators are restricted by policy to aggregated, privacy-protected indicators, with groups under five suppressed. That analytics API is not implemented yet.
