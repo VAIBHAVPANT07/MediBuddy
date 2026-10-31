@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { TabsContent } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { translations, speakText, analyzeSymptoms, governmentSchemes, getFromStorage, cn } from '@/lib/utils';
+import { translations, analyzeSymptoms, governmentSchemes, getFromStorage, cn } from '@/lib/utils';
 import { PortalShell, Panel, Pill, Initials } from '@/components/portal';
 import { cancelAppointment as cancelAppointmentRequest, createAppointment, getCareProviders, getMyAppointments, getMyPatientRecords, getPharmacyCatalog, type AppointmentRecord, type CareProvider, type PharmacyMedicine } from '@/lib/api';
 import {
@@ -16,8 +16,6 @@ import {
   Phone,
   Ambulance,
   Car,
-  Volume2,
-  Mic,
   Upload,
   Download,
   Landmark,
@@ -48,7 +46,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
   const [currentLang, setCurrentLang] = useState<'en' | 'hi' | 'pa'>('en');
   const [symptoms, setSymptoms] = useState('');
   const [analysis, setAnalysis] = useState<SymptomAnalysis | null>(null);
-  const [isListening, setIsListening] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [appointmentDate, setAppointmentDate] = useState('');
   const [appointmentTime, setAppointmentTime] = useState('');
@@ -78,31 +75,10 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
     return () => { active = false; };
   }, []);
 
-  const speak = (text: string) => {
-    speakText(text, currentLang);
-  };
-
   const handleSymptomAnalysis = () => {
     if (symptoms.trim()) {
       const result = analyzeSymptoms(symptoms);
       setAnalysis(result);
-      speak(`Analysis complete. You may have ${result.condition}. Severity: ${result.severity}`);
-    }
-  };
-
-  const startVoiceInput = () => {
-    if ('webkitSpeechRecognition' in window) {
-      const recognition = new (window as Window & { webkitSpeechRecognition: new () => SpeechRecognition }).webkitSpeechRecognition();
-      recognition.lang = currentLang === 'hi' ? 'hi-IN' : currentLang === 'pa' ? 'pa-IN' : 'en-US';
-      recognition.onstart = () => setIsListening(true);
-      recognition.onend = () => setIsListening(false);
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        const transcript = event.results[0][0].transcript;
-        setSymptoms(transcript);
-      };
-      recognition.start();
-    } else {
-      toast.error('Voice input is not supported in this browser');
     }
   };
 
@@ -115,7 +91,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
       try {
         const appointment = await createAppointment({ doctorId: selectedDoctor, scheduledAt: new Date(localDateTime).toISOString() });
         setAppointments((current) => [{ ...appointment, doctorName: doctors.find((doctor) => doctor.id === selectedDoctor)?.name }, ...current]);
-        speak('Appointment request sent');
         toast.success('Appointment requested', { description: `${doctors.find((doctor) => doctor.id === selectedDoctor)?.name} · ${appointmentDate} at ${appointmentTime}` });
         setSelectedDoctor('');
         setAppointmentDate('');
@@ -137,7 +112,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
   };
 
   const callEmergency = (service: string) => {
-    speak(`Calling ${service} service`);
     toast(`Connecting to ${service}…`, { description: 'Your location is being shared with the nearest unit.' });
   };
 
@@ -155,7 +129,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
     link.download = 'health-records.json';
     link.click();
 
-    speak('Health records downloaded');
   };
 
   const filteredMedicines = medicines.filter((m) => m.name.toLowerCase().includes(medicineQuery.toLowerCase()));
@@ -200,11 +173,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
           <Panel
             eyebrow="Symptom guidance · Demo"
             title={t.aiSymptomChecker}
-            action={
-              <Button variant="ghost" size="icon" onClick={() => speak(t.aiSymptomChecker)} aria-label={t.listen}>
-                <Volume2 />
-              </Button>
-            }
           >
             <div className="relative">
               <Textarea
@@ -213,17 +181,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
                 onChange={(e) => setSymptoms(e.target.value)}
                 className="min-h-[180px] resize-none rounded-2xl border-0 bg-muted/60 p-5 pr-16 text-lg focus-visible:ring-role"
               />
-              <button
-                onClick={startVoiceInput}
-                disabled={isListening}
-                aria-label="Speak symptoms"
-                className={cn(
-                  'absolute bottom-4 right-4 grid h-11 w-11 place-items-center rounded-full transition',
-                  isListening ? 'animate-pulse bg-red-600 text-white' : 'bg-ink text-white hover:scale-105'
-                )}
-              >
-                <Mic className="h-4 w-4" />
-              </button>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {quickSymptoms.map((s) => (
@@ -253,9 +210,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
                 <div key={label as string} className="mt-8">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/50">{label as string}</p>
-                    <button onClick={() => speak((items as string[]).join('. '))} className="rounded-full p-1.5 text-white/60 hover:bg-white/10 hover:text-white" aria-label={t.listen}>
-                      <Volume2 className="h-4 w-4" />
-                    </button>
                   </div>
                   <ul className="divide-y divide-white/10 border-y border-white/10">
                     {(items as string[]).map((item, i) => (
@@ -431,11 +385,6 @@ export default function PatientPortal({ onLogout }: PatientPortalProps) {
               key={index}
               eyebrow={`Scheme 0${index + 1}`}
               title={scheme.name}
-              action={
-                <Button variant="ghost" size="icon" onClick={() => speak(`${scheme.name}. ${scheme.description}`)} aria-label={t.listen}>
-                  <Volume2 />
-                </Button>
-              }
             >
               <p className="text-lg leading-snug">{scheme.description}</p>
               <dl className="mt-6 divide-y border-y text-sm">

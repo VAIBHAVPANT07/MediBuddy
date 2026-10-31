@@ -5,16 +5,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from 'sonner';
-import { translations, speakText, saveToStorage, cn } from '@/lib/utils';
+import { translations, saveToStorage, cn } from '@/lib/utils';
 import { Logo, roleColors, type Role } from '@/components/portal';
 import { requestOtp, verifyOtp } from '@/lib/api';
-import { User, Stethoscope, Shield, Store, Volume2, Globe, ArrowUpRight, ArrowLeft, Check, Languages, Mic, Video, Pill, Ambulance } from 'lucide-react';
+import { User, Stethoscope, Shield, Store, Globe, ArrowUpRight, ArrowLeft, Check, Languages, Video, Pill, Ambulance } from 'lucide-react';
 
 interface AuthPageProps {
   onLogin: (role: string) => void;
 }
 
-const marquee = ['AI symptom checker', 'Video consultations', 'हिंदी', 'ਪੰਜਾਬੀ', 'Digital prescriptions', 'Government schemes', 'Ambulance in one tap', 'Live medicine stock', 'Village health analytics', 'Voice-first'];
+const marquee = ['AI symptom checker', 'Video consultations', 'हिंदी', 'ਪੰਜਾਬੀ', 'Digital prescriptions', 'Government schemes', 'Ambulance in one tap', 'Live medicine stock', 'Village health analytics'];
 
 export default function AuthPage({ onLogin }: AuthPageProps) {
   const [currentLang, setCurrentLang] = useState<'en' | 'hi' | 'pa'>('en');
@@ -50,7 +50,6 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
       setStep('otp');
       if(challenge.developmentOtp) toast('Local development code ready',{description:`Your local verification code is ${challenge.developmentOtp}.`});
       else toast.success('Verification code sent', { description: 'Enter the six-digit code to continue.' });
-      speakText('Verification code sent', currentLang);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'otp_request_failed';
       toast.error('Could not send verification code', {
@@ -132,9 +131,6 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
               {currentLang === 'en'
                 ? 'One platform connecting patients, doctors, pharmacies and health officials across every village — in the language people actually speak.'
                 : t.welcome}
-              <button onClick={() => speakText(t.welcome, currentLang)} className="mt-1 shrink-0 rounded-full p-1.5 hover:bg-muted" aria-label={t.listen}>
-                <Volume2 className="h-4 w-4" />
-              </button>
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Button size="lg" onClick={() => openSignIn('patient')}>
@@ -223,7 +219,6 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
           </div>
           <div className="grid gap-px overflow-hidden rounded-[28px] border bg-border sm:grid-cols-2">
             {[
-              { icon: Mic, title: 'Voice-first', body: 'Speak symptoms instead of typing. Every screen can read itself aloud.' },
               { icon: Languages, title: 'Three languages', body: 'English, Hindi and Punjabi — switch any time, anywhere.' },
               { icon: Video, title: 'Tele-consults', body: 'Video calls tuned for 2G/3G, with notes and e-prescriptions.' },
               { icon: Ambulance, title: 'Emergency in one tap', body: 'Ambulance or rickshaw to the nearest clinic, straight from the app.' },
@@ -247,12 +242,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
               Four doors. <em>One system.</em>
             </h2>
           </div>
-          <p className="flex max-w-sm items-center gap-2 text-muted-foreground">
-            {t.selectRole}
-            <button onClick={() => speakText(t.selectRole, currentLang)} className="rounded-full p-1.5 hover:bg-muted" aria-label={t.listen}>
-              <Volume2 className="h-4 w-4" />
-            </button>
-          </p>
+          <p className="max-w-sm text-muted-foreground">{t.selectRole}</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -325,11 +315,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
         <SheetContent className="flex w-full flex-col gap-0 overflow-y-auto border-l-0 p-0 sm:max-w-md" style={{ '--role': roleColors[selectedRole] } as CSSProperties}>
           <div className="grain bg-role p-8 pt-12 text-white">
             <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/70">{step === 'login' ? 'Step 1 of 2' : 'Step 2 of 2'}</p>
-            <SheetTitle className="mt-3 flex items-center gap-2 font-display text-5xl font-normal leading-none text-white">
+            <SheetTitle className="mt-3 font-display text-5xl font-normal leading-none text-white">
               {step === 'login' ? t.login : t.verify}
-              <button onClick={() => speakText(step === 'login' ? `${t.login} ${active.name}` : t.verify, currentLang)} className="rounded-full p-1.5 hover:bg-white/15" aria-label={t.listen}>
-                <Volume2 className="h-4 w-4" />
-              </button>
             </SheetTitle>
             <SheetDescription className="mt-2 text-white/80">
               {step === 'login' ? `Continue to the ${active.name} portal.` : 'Enter the six-digit verification code.'}

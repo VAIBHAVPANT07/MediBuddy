@@ -28,7 +28,6 @@ export const translations = {
     governmentSchemes: "Government Schemes",
     medicineAvailability: "Medicine Availability",
     aiSymptomChecker: "AI Symptom Checker",
-    listen: "Listen",
     language: "Language"
   },
   hi: {
@@ -52,7 +51,6 @@ export const translations = {
     governmentSchemes: "सरकारी योजनाएं",
     medicineAvailability: "दवा उपलब्धता",
     aiSymptomChecker: "एआई लक्षण जांचकर्ता",
-    listen: "सुनें",
     language: "भाषा"
   },
   pa: {
@@ -76,19 +74,7 @@ export const translations = {
     governmentSchemes: "ਸਰਕਾਰੀ ਯੋਜਨਾਵਾਂ",
     medicineAvailability: "ਦਵਾਈ ਦੀ ਉਪਲਬਧਤਾ",
     aiSymptomChecker: "ਏਆਈ ਲੱਛਣ ਜਾਂਚਕਰਤਾ",
-    listen: "ਸੁਣੋ",
     language: "ਭਾਸ਼ਾ"
-  }
-};
-
-// Text-to-Speech functionality
-export const speakText = (text: string, lang: string = 'en') => {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang === 'hi' ? 'hi-IN' : lang === 'pa' ? 'pa-IN' : 'en-US';
-    utterance.rate = 0.8;
-    utterance.pitch = 1;
-    speechSynthesis.speak(utterance);
   }
 };
 
