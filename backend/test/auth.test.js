@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canSelfAssignRole, phoneOtpRequestSchema, registerSchema, roleSchema } from '../dist/auth.js';
+import { canSelfAssignRole, isAllowedLoginPhone, phoneOtpRequestSchema, registerSchema, roleSchema } from '../dist/auth.js';
 
 test('public registration accepts a patient and supplies the patient role', () => {
   const result = registerSchema.safeParse({ phone: '+919876543210', password: 'a-long-demo-password' });
@@ -35,4 +35,12 @@ test('phone OTP request requires a valid phone and known portal role', () => {
   assert.equal(phoneOtpRequestSchema.safeParse({ phone: '+919876543210', role: 'patient' }).success, true);
   assert.equal(phoneOtpRequestSchema.safeParse({ phone: 'bad', role: 'patient' }).success, false);
   assert.equal(phoneOtpRequestSchema.safeParse({ phone: '+919876543210', role: 'unknown' }).success, false);
+});
+
+test('only approved demo phone numbers can request OTP', () => {
+  assert.equal(isAllowedLoginPhone('+91 75338 65543'), true);
+  assert.equal(isAllowedLoginPhone('+91 9129686436'), true);
+  assert.equal(isAllowedLoginPhone('+91 95557 19902'), true);
+  assert.equal(isAllowedLoginPhone('+91 70609 59826'), true);
+  assert.equal(isAllowedLoginPhone('+91 99999 99999'), false);
 });

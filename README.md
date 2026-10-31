@@ -13,7 +13,7 @@ Requirements: Node.js 22+, pnpm (via Corepack), and the configured local Postgre
 3. Run `corepack pnpm dev:full` from the repository root and open **http://localhost:5175**. The API health check is **http://localhost:3002/api/health**.
 4. Press Ctrl+C to stop. To start again, run `corepack pnpm dev:full`.
 
-Development OTP delivery uses a one-time code shown in the sign-in screen. OTP sign-in is disabled in production until an email provider is configured. Local OTP signup allows choosing any portal role for convenience; production requires provisioned staff roles. Do not use real patient data in this prototype.
+Development and demo production OTP use a one-time code shown in the sign-in screen. Only the four approved demo phone numbers can request or verify an OTP; all other numbers are rejected. Local OTP signup allows choosing any portal role for convenience; production requires provisioned staff roles. Do not use real patient data in this prototype.
 
 `corepack pnpm dev:stop` stops a launcher started with `dev:full`.
 
@@ -34,7 +34,7 @@ Create a managed PostgreSQL database and set the Render service variables `DATAB
 
 In Vercel, set `VITE_API_BASE_URL` to the public Render API URL followed by `/api`, for example `https://medibuddy-api.onrender.com/api`. Do not put database credentials or JWT secrets in Vercel variables or committed files.
 
-Production requires `NODE_ENV=production`, HTTPS, and a production database. OTP sign-in is intentionally unavailable in production until an email provider is added.
+Production requires `NODE_ENV=production`, HTTPS, and a production database. This demo intentionally uses a server-returned OTP for the four approved numbers and is not suitable for real user authentication without an SMS provider.
 
 If Render logs show `Running 'yarn start'`, the existing Render service is using stale dashboard settings instead of [`render.yaml`](./render.yaml). In the Render service settings, set **Root Directory** to `backend`, **Build Command** to `npm ci && npm run build`, and **Start Command** to `npm run migrate && npm start`. Do not use `yarn start`. Save the settings and trigger a manual redeploy.
 

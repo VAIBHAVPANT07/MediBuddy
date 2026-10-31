@@ -18,6 +18,17 @@ export const phoneOtpRequestSchema = z.object({
   role: roleSchema,
 });
 const phoneOtpVerifySchema = phoneOtpRequestSchema.extend({ challengeId: z.string().uuid(), otp: z.string().regex(/^\d{6}$/) });
+const allowedLoginPhones = new Set([
+  '+917533865543',
+  '+919129686436',
+  '+919555719902',
+  '+917060959826',
+]);
+export function isAllowedLoginPhone(phone: string) {
+  const digits = phone.replace(/\D/g, '');
+  const normalized = digits.startsWith('91') ? `+${digits}` : `+91${digits}`;
+  return allowedLoginPhones.has(normalized);
+}
 export function canSelfAssignRole(environment: string | undefined, assignedRoles: string[], requestedRole: string) {
   if (environment !== 'production') return true;
   if (assignedRoles.length > 0) return assignedRoles.includes(requestedRole);
@@ -126,10 +137,8 @@ export async function login(request: Request, response: Response) {
 export async function requestPhoneOtp(request: Request, response: Response) {
   const parsed = phoneOtpRequestSchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
-  if (process.env.NODE_ENV === 'production') {
-    return response.status(503).json({ error: 'email_delivery_unavailable' });
-  }
   const phone = parsed.data.phone.startsWith('+') ? parsed.data.phone : `+${parsed.data.phone}`;
+  if (!isAllowedLoginPhone(phone)) return response.status(403).json({ error: 'phone_not_allowed' });
   const recent = await pool.query<{ minute_count: string; hour_count: string }>(`SELECT
     count(*) FILTER (WHERE created_at > now() - interval '1 minute') AS minute_count,
     count(*) FILTER (WHERE created_at > now() - interval '1 hour') AS hour_count
@@ -149,6 +158,7 @@ export async function verifyPhoneOtp(request: Request, response: Response) {
   const parsed = phoneOtpVerifySchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
   const phone = parsed.data.phone.startsWith('+') ? parsed.data.phone : `+${parsed.data.phone}`;
+  if (!isAllowedLoginPhone(phone)) return response.status(403).json({ error: 'phone_not_allowed' });
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

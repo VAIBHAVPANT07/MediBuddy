@@ -53,8 +53,8 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'otp_request_failed';
       toast.error('Could not send verification code', {
-        description: message === 'email_delivery_unavailable'
-          ? 'Verification codes are unavailable in production.'
+        description: message === 'phone_not_allowed'
+            ? 'This mobile number is not approved for this demo.'
           : message === 'otp_rate_limited'
               ? 'A code was sent recently. Wait a minute before requesting another.'
             : 'Check the phone number and try again.',
