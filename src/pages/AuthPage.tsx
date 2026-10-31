@@ -7,7 +7,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from 'sonner';
 import { translations, speakText, saveToStorage, cn } from '@/lib/utils';
 import { Logo, roleColors, type Role } from '@/components/portal';
-import { requestEmailOtp, verifyEmailOtp } from '@/lib/api';
+import { requestOtp, verifyOtp } from '@/lib/api';
 import { User, Stethoscope, Shield, Store, Volume2, Globe, ArrowUpRight, ArrowLeft, Check, Languages, Mic, Video, Pill, Ambulance } from 'lucide-react';
 
 interface AuthPageProps {
@@ -21,7 +21,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const [selectedRole, setSelectedRole] = useState<Role>('patient');
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'login' | 'otp'>('login');
-  const [formData, setFormData] = useState({ mobile: '', email: '', aadhar: '', otp: '', challengeId: '' });
+  const [formData, setFormData] = useState({ mobile: '', aadhar: '', otp: '', challengeId: '' });
   const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   const t = translations[currentLang];
@@ -45,20 +45,20 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
   const handleSendOtp = async () => {
     setIsSendingOtp(true);
     try {
-      const challenge = await requestEmailOtp(formData.mobile, formData.email, selectedRole);
+      const challenge = await requestOtp(formData.mobile, selectedRole);
       setFormData((current) => ({ ...current, challengeId: challenge.challengeId, otp: challenge.developmentOtp ?? '' }));
       setStep('otp');
-      if(challenge.developmentOtp) toast('Local development code ready',{description:`Email delivery is unavailable. The local-only code is ${challenge.developmentOtp}.`});
-      else toast.success('Verification email sent', { description: `Check ${formData.email} for your 6-digit sign-in code.` });
-      speakText('Verification code sent to your email', currentLang);
+      if(challenge.developmentOtp) toast('Local development code ready',{description:`Your local verification code is ${challenge.developmentOtp}.`});
+      else toast.success('Verification code sent', { description: 'Enter the six-digit code to continue.' });
+      speakText('Verification code sent', currentLang);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'email_delivery_failed';
-      toast.error('Could not send verification email', {
+      const message = error instanceof Error ? error.message : 'otp_request_failed';
+      toast.error('Could not send verification code', {
         description: message === 'email_delivery_unavailable'
-          ? 'Email verification is unavailable in production.'
+          ? 'Verification codes are unavailable in production.'
           : message === 'otp_rate_limited'
               ? 'A code was sent recently. Wait a minute before requesting another.'
-            : 'Check the phone number, email address, and API connection.',
+            : 'Check the phone number and try again.',
       });
     } finally {
       setIsSendingOtp(false);
@@ -67,7 +67,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
 
   const handleVerifyOtp = async () => {
     try {
-      await verifyEmailOtp(formData.mobile, formData.email, formData.challengeId, formData.otp, selectedRole);
+      await verifyOtp(formData.mobile, formData.challengeId, formData.otp, selectedRole);
       saveToStorage('userRole', selectedRole);
       saveToStorage('userMobile', formData.mobile);
       saveToStorage('userAadhar', formData.aadhar);
@@ -75,7 +75,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Could not sign in.';
       toast.error(message === 'invalid_otp' ? 'Incorrect code' : 'Sign-in unavailable', {
-        description: message === 'invalid_otp' ? 'Check the code in your email and try again.' : message === 'role_not_assigned' ? 'This account does not have that portal role.' : 'The code may have expired. Request a new one and try again.',
+        description: message === 'invalid_otp' ? 'Check the six-digit code and try again.' : message === 'role_not_assigned' ? 'This account does not have that portal role.' : 'The code may have expired. Request a new one and try again.',
       });
     }
   };
@@ -332,7 +332,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
               </button>
             </SheetTitle>
             <SheetDescription className="mt-2 text-white/80">
-              {step === 'login' ? `Continue to the ${active.name} portal.` : `Enter the code sent to ${formData.email}.`}
+              {step === 'login' ? `Continue to the ${active.name} portal.` : 'Enter the six-digit verification code.'}
             </SheetDescription>
           </div>
 
@@ -377,18 +377,6 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                 </label>
 
                 <label className="block">
-                  <span className="eyebrow">Email address</span>
-                  <Input
-                    type="email"
-                    autoComplete="email"
-                    placeholder="you@example.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value.trimStart() })}
-                    className="mt-2 h-12 rounded-2xl focus-visible:ring-role"
-                  />
-                </label>
-
-                <label className="block">
                   <span className="eyebrow">{t.aadharNumber}</span>
                   <Input
                     inputMode="numeric"
@@ -400,7 +388,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                   />
                 </label>
 
-                <Button size="lg" onClick={handleSendOtp} className="mt-auto w-full bg-role hover:bg-role/90" disabled={isSendingOtp || formData.mobile.length !== 10 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) || formData.aadhar.length !== 12}>
+                <Button size="lg" onClick={handleSendOtp} className="mt-auto w-full bg-role hover:bg-role/90" disabled={isSendingOtp || formData.mobile.length !== 10 || formData.aadhar.length !== 12}>
                   {isSendingOtp ? 'Sending code…' : t.sendOtp} <ArrowUpRight />
                 </Button>
               </>
@@ -415,7 +403,7 @@ export default function AuthPage({ onLogin }: AuthPageProps) {
                       ))}
                     </InputOTPGroup>
                   </InputOTP>
-                  <p className="mt-4 text-sm text-muted-foreground">The code expires in 10 minutes. Email is verified; your mobile number is used as a contact and is not SMS-verified.</p>
+                  <p className="mt-4 text-sm text-muted-foreground">The code expires in 10 minutes. This is a local development code.</p>
                 </div>
                 <div className="mt-auto flex gap-2">
                   <Button size="lg" variant="outline" onClick={() => setStep('login')}>

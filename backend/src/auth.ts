@@ -13,12 +13,11 @@ export const registerSchema = z.object({
   role: z.literal('patient').default('patient'),
 }).refine((value) => value.phone || value.email, { message: 'Provide a phone number or email.' });
 const loginSchema = z.object({ identifier: z.string().min(3).max(254), password: z.string().min(1).max(128) });
-export const emailOtpRequestSchema = z.object({
+export const phoneOtpRequestSchema = z.object({
   phone: z.string().regex(/^\+?[0-9]{8,15}$/),
-  email: z.string().email().max(254),
   role: roleSchema,
 });
-const emailOtpVerifySchema = emailOtpRequestSchema.extend({ challengeId: z.string().uuid(), otp: z.string().regex(/^\d{6}$/) });
+const phoneOtpVerifySchema = phoneOtpRequestSchema.extend({ challengeId: z.string().uuid(), otp: z.string().regex(/^\d{6}$/) });
 export function canSelfAssignRole(environment: string | undefined, assignedRoles: string[], requestedRole: string) {
   if (environment !== 'production') return true;
   if (assignedRoles.length > 0) return assignedRoles.includes(requestedRole);
@@ -124,40 +123,38 @@ export async function login(request: Request, response: Response) {
   return response.json({ user });
 }
 
-export async function requestEmailOtp(request: Request, response: Response) {
-  const parsed = emailOtpRequestSchema.safeParse(request.body);
+export async function requestPhoneOtp(request: Request, response: Response) {
+  const parsed = phoneOtpRequestSchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
   if (process.env.NODE_ENV === 'production') {
     return response.status(503).json({ error: 'email_delivery_unavailable' });
   }
   const phone = parsed.data.phone.startsWith('+') ? parsed.data.phone : `+${parsed.data.phone}`;
-  const email = parsed.data.email.toLowerCase();
   const recent = await pool.query<{ minute_count: string; hour_count: string }>(`SELECT
     count(*) FILTER (WHERE created_at > now() - interval '1 minute') AS minute_count,
     count(*) FILTER (WHERE created_at > now() - interval '1 hour') AS hour_count
-    FROM auth_challenges WHERE phone=$1 OR email=$2`, [phone, email]);
+    FROM auth_challenges WHERE phone=$1`, [phone]);
   if (Number(recent.rows[0].minute_count) >= 1 || Number(recent.rows[0].hour_count) >= 5) {
     return response.status(429).json({ error: 'otp_rate_limited' });
   }
   await pool.query(`DELETE FROM auth_challenges WHERE expires_at < now() - interval '1 day'`);
   const challengeId = randomUUID();
   const otp = randomInt(0, 1_000_000).toString().padStart(6, '0');
-  await pool.query(`INSERT INTO auth_challenges(id,phone,email,code_hash,role,expires_at)
-    VALUES($1,$2,$3,$4,$5,now() + interval '10 minutes')`, [challengeId, phone, email, otpDigest(challengeId, otp), parsed.data.role]);
-  return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: email, developmentOtp: otp, delivery: 'local_fallback' });
+  await pool.query(`INSERT INTO auth_challenges(id,phone,code_hash,role,expires_at)
+    VALUES($1,$2,$3,$4,now() + interval '10 minutes')`, [challengeId, phone, otpDigest(challengeId, otp), parsed.data.role]);
+  return response.status(202).json({ challengeId, expiresInSeconds: 600, destination: phone, developmentOtp: otp, delivery: 'local_fallback' });
 }
 
-export async function verifyEmailOtp(request: Request, response: Response) {
-  const parsed = emailOtpVerifySchema.safeParse(request.body);
+export async function verifyPhoneOtp(request: Request, response: Response) {
+  const parsed = phoneOtpVerifySchema.safeParse(request.body);
   if (!parsed.success) return response.status(400).json({ error: 'invalid_request', details: parsed.error.flatten() });
   const phone = parsed.data.phone.startsWith('+') ? parsed.data.phone : `+${parsed.data.phone}`;
-  const email = parsed.data.email.toLowerCase();
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
     const challenges = await client.query<{ code_hash: string; attempts: number }>(`SELECT code_hash,attempts FROM auth_challenges
-      WHERE id=$1 AND phone=$2 AND email=$3 AND role=$4 AND consumed_at IS NULL AND expires_at>now() FOR UPDATE`,
-    [parsed.data.challengeId, phone, email, parsed.data.role]);
+      WHERE id=$1 AND phone=$2 AND role=$3 AND consumed_at IS NULL AND expires_at>now() FOR UPDATE`,
+    [parsed.data.challengeId, phone, parsed.data.role]);
     if (!challenges.rows[0] || challenges.rows[0].attempts >= 5) {
       await client.query('ROLLBACK');
       return response.status(400).json({ error: 'otp_expired_or_invalid' });
@@ -170,15 +167,15 @@ export async function verifyEmailOtp(request: Request, response: Response) {
       return response.status(401).json({ error: 'invalid_otp' });
     }
     const existingUsers = await client.query<SessionUser>(`SELECT id,phone,email FROM users
-      WHERE phone=$1 OR lower(email)=lower($2) FOR UPDATE`, [phone, email]);
+      WHERE phone=$1 FOR UPDATE`, [phone]);
     const account = existingUsers.rows[0];
-    if (existingUsers.rows.some((user) => user.phone !== phone || user.email?.toLowerCase() !== email)) {
+    if (existingUsers.rows.some((user) => user.phone !== phone)) {
       await client.query('ROLLBACK');
       return response.status(409).json({ error: 'account_contact_mismatch' });
     }
     const { rows } = account
-      ? await client.query<SessionUser>(`UPDATE users SET email_verified_at=COALESCE(email_verified_at,now()), is_active=true WHERE id=$1 RETURNING id,phone,email`, [account.id])
-      : await client.query<SessionUser>(`INSERT INTO users(phone,email,email_verified_at) VALUES($1,$2,now()) RETURNING id,phone,email`, [phone, email]);
+      ? await client.query<SessionUser>(`UPDATE users SET is_active=true WHERE id=$1 RETURNING id,phone,email`, [account.id])
+      : await client.query<SessionUser>(`INSERT INTO users(phone) VALUES($1) RETURNING id,phone,email`, [phone]);
     const user = rows[0];
     let assignedRoles = await client.query<{ name: string }>(`SELECT r.name FROM roles r JOIN user_roles ur ON ur.role_id=r.id WHERE ur.user_id=$1`, [user.id]);
     if (process.env.NODE_ENV !== 'production' && assignedRoles.rows.length === 0 && parsed.data.role !== 'patient') {
@@ -190,10 +187,10 @@ export async function verifyEmailOtp(request: Request, response: Response) {
       return response.status(403).json({ error: 'role_not_assigned' });
     }
     await attachRole(client, user.id, parsed.data.role);
-    await createProfile(client, user.id, parsed.data.role, 'email_otp_verification');
+    await createProfile(client, user.id, parsed.data.role, 'phone_otp_verification');
     await client.query('UPDATE auth_challenges SET consumed_at=now() WHERE id=$1', [parsed.data.challengeId]);
     await client.query('COMMIT');
-    await audit({ actorUserId: user.id, action: 'email_otp_login', resourceType: 'user', metadata: { role: parsed.data.role } });
+    await audit({ actorUserId: user.id, action: 'phone_otp_login', resourceType: 'user', metadata: { role: parsed.data.role } });
     await issueSession({ ...user, role: parsed.data.role }, response);
     return response.json({ user: { ...user, role: parsed.data.role } });
   } catch (error) { await client.query('ROLLBACK'); throw error; }

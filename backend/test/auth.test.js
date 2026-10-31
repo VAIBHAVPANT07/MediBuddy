@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canSelfAssignRole, emailOtpRequestSchema, registerSchema, roleSchema } from '../dist/auth.js';
+import { canSelfAssignRole, phoneOtpRequestSchema, registerSchema, roleSchema } from '../dist/auth.js';
 
 test('public registration accepts a patient and supplies the patient role', () => {
   const result = registerSchema.safeParse({ phone: '+919876543210', password: 'a-long-demo-password' });
@@ -31,8 +31,8 @@ test('production OTP login cannot self-assign staff roles', () => {
   assert.equal(canSelfAssignRole('development', [], 'admin'), true);
 });
 
-test('email OTP request requires a valid email, phone, and known portal role', () => {
-  assert.equal(emailOtpRequestSchema.safeParse({ phone: '+919876543210', email: 'patient@example.org', role: 'patient' }).success, true);
-  assert.equal(emailOtpRequestSchema.safeParse({ phone: 'bad', email: 'patient@example.org', role: 'patient' }).success, false);
-  assert.equal(emailOtpRequestSchema.safeParse({ phone: '+919876543210', email: 'not-an-email', role: 'patient' }).success, false);
+test('phone OTP request requires a valid phone and known portal role', () => {
+  assert.equal(phoneOtpRequestSchema.safeParse({ phone: '+919876543210', role: 'patient' }).success, true);
+  assert.equal(phoneOtpRequestSchema.safeParse({ phone: 'bad', role: 'patient' }).success, false);
+  assert.equal(phoneOtpRequestSchema.safeParse({ phone: '+919876543210', role: 'unknown' }).success, false);
 });

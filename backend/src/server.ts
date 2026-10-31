@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { pool } from './db.js';
-import { login, logout, refresh, register, requestEmailOtp, requireAuth, requireRole, type AuthenticatedRequest, verifyEmailOtp } from './auth.js';
+import { login, logout, refresh, register, requestPhoneOtp, requireAuth, requireRole, type AuthenticatedRequest, verifyPhoneOtp } from './auth.js';
 
 const app = express();
 const port = Number(process.env.PORT ?? process.env.API_PORT ?? 3001);
@@ -256,8 +256,8 @@ app.get('/api/health', async (_request, response) => {
 });
 app.post('/api/auth/register', asyncRoute(register));
 app.post('/api/auth/login', asyncRoute(login));
-app.post('/api/auth/otp/request', asyncRoute(requestEmailOtp));
-app.post('/api/auth/otp/verify', asyncRoute(verifyEmailOtp));
+app.post('/api/auth/otp/request', asyncRoute(requestPhoneOtp));
+app.post('/api/auth/otp/verify', asyncRoute(verifyPhoneOtp));
 app.post('/api/auth/refresh', asyncRoute(refresh));
 app.post('/api/auth/logout', asyncRoute(logout));
 app.get('/api/auth/me', requireAuth, asyncRoute(async (request, response, next) => {
@@ -286,8 +286,8 @@ const openApi = {
     '/health': { get: { summary: 'API and database readiness', responses: { '200': { description: 'Ready' }, '503': { description: 'Database unavailable' } } } },
     '/auth/register': { post: { summary: 'Register a patient account', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['password'], properties: { phone: { type: 'string' }, email: { type: 'string', format: 'email' }, password: { type: 'string', minLength: 12 }, role: { const: 'patient' } } } } } }, responses: { '201': { description: 'Account created; HttpOnly session cookies set' }, '400': { description: 'Invalid input' }, '409': { description: 'Account already exists' } } } },
     '/auth/login': { post: { summary: 'Authenticate with password', responses: { '200': { description: 'Authenticated; HttpOnly session cookies set' }, '401': { description: 'Invalid credentials' } } } },
-    '/auth/otp/request': { post: { summary: 'Generate a development-only verification code; phone is an unverified contact field', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['phone','email','role'], properties: { phone: { type: 'string', example: '+919876543210' }, email: { type: 'string', format: 'email' }, role: { type: 'string', enum: ['patient','doctor','admin','seller'] } } } } } }, responses: { '202': { description: 'Development code generated' }, '429': { description: 'Per-identity send limit reached' }, '503': { description: 'OTP unavailable in production' } } } },
-    '/auth/otp/verify': { post: { summary: 'Verify email code and create or sign in to an account', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['phone','email','role','challengeId','otp'], properties: { phone: { type: 'string' }, email: { type: 'string', format: 'email' }, role: { type: 'string', enum: ['patient','doctor','admin','seller'] }, challengeId: { type: 'string', format: 'uuid' }, otp: { type: 'string', pattern: '^\\d{6}$' } } } } } }, responses: { '200': { description: 'Authenticated; HttpOnly session cookies set' }, '401': { description: 'Invalid code' }, '403': { description: 'Requested role is not assigned' } } } },
+    '/auth/otp/request': { post: { summary: 'Generate a development-only verification code for a phone number', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['phone','role'], properties: { phone: { type: 'string', example: '+919876543210' }, role: { type: 'string', enum: ['patient','doctor','admin','seller'] } } } } } }, responses: { '202': { description: 'Development code generated' }, '429': { description: 'Per-phone send limit reached' }, '503': { description: 'OTP unavailable in production' } } } },
+    '/auth/otp/verify': { post: { summary: 'Verify a phone code and create or sign in to an account', requestBody: { required: true, content: { 'application/json': { schema: { type: 'object', required: ['phone','role','challengeId','otp'], properties: { phone: { type: 'string' }, role: { type: 'string', enum: ['patient','doctor','admin','seller'] }, challengeId: { type: 'string', format: 'uuid' }, otp: { type: 'string', pattern: '^\\d{6}$' } } } } } }, responses: { '200': { description: 'Authenticated; HttpOnly session cookies set' }, '401': { description: 'Invalid code' }, '403': { description: 'Requested role is not assigned' } } } },
     '/auth/refresh': { post: { summary: 'Rotate refresh token and issue a new access token', responses: { '200': { description: 'Session refreshed' }, '401': { description: 'Refresh rejected' } } } },
     '/auth/logout': { post: { summary: 'Revoke refresh token and clear session cookies', responses: { '204': { description: 'Logged out' } } } },
     '/auth/me': { get: { summary: 'Return current account and assigned roles', responses: { '200': { description: 'Account details' }, '401': { description: 'Authentication required' } } } },

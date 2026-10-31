@@ -30,18 +30,18 @@ async function apiRequest<T = unknown>(path: string, init: RequestInit = {}): Pr
   return (response.status === 204 ? null : response.json()) as Promise<T>;
 }
 
-export function requestEmailOtp(phone: string, email: string, role: Role) {
+export function requestOtp(phone: string, role: Role) {
   const normalizedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
   return apiRequest<{challengeId:string;developmentOtp?:string;delivery?:string}>('/auth/otp/request', {
-    method: 'POST', body: JSON.stringify({ phone: normalizedPhone, email, role }),
+    method: 'POST', body: JSON.stringify({ phone: normalizedPhone, role }),
   });
 }
 
-export function verifyEmailOtp(phone: string, email: string, challengeId: string, otp: string, role: Role) {
+export function verifyOtp(phone: string, challengeId: string, otp: string, role: Role) {
   const normalizedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
   return apiRequest('/auth/otp/verify', {
     method: 'POST',
-    body: JSON.stringify({ phone: normalizedPhone, email, challengeId, otp, role }),
+    body: JSON.stringify({ phone: normalizedPhone, challengeId, otp, role }),
   });
 }
 
