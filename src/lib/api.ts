@@ -17,17 +17,52 @@ export interface PharmacyMedicine { id:string; name:string; category:string|null
 
 const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '/api').replace(/\/$/, '');
 
+/** Errors the UI can name: an unreachable API and a rejected request are different problems. */
+export class ApiError extends Error {
+  status: number | null;
+  unreachable: boolean;
+  constructor(message: string, status: number | null, unreachable = false) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+    this.unreachable = unreachable;
+  }
+}
+
+export function describeApiError(error: unknown) {
+  if (error instanceof ApiError && error.unreachable) {
+    return 'The API is not reachable at /api. Start it with npm run dev:full.';
+  }
+  if (error instanceof Error && error.message) return error.message;
+  return 'The request did not go through. Check the details and try again.';
+}
+
 async function apiRequest<T = unknown>(path: string, init: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${apiBaseUrl}${path}`, {
-    ...init,
-    credentials: 'include',
-    headers: { 'Content-Type': 'application/json', ...init.headers },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${apiBaseUrl}${path}`, {
+      ...init,
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', ...init.headers },
+    });
+  } catch {
+    throw new ApiError('api_unreachable', null, true);
+  }
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(payload.error ?? `Request failed (${response.status})`);
+    throw new ApiError(payload.error ?? `Request failed (${response.status})`, response.status);
   }
   return (response.status === 204 ? null : response.json()) as Promise<T>;
+}
+
+export interface ApiHealth {
+  status: string;
+  database: string;
+  data?: { patients?: number; appointments?: number };
+}
+
+export function getApiHealth() {
+  return apiRequest<ApiHealth>('/health');
 }
 
 export function requestOtp(phone: string, role: Role) {

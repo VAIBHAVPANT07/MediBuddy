@@ -1,2 +1,8 @@
 User-agent: *
 Allow: /
+Disallow: /patient/
+Disallow: /doctor/
+Disallow: /admin/
+Disallow: /pharmacy/
+
+Sitemap: https://gramhealth.in/sitemap.xml

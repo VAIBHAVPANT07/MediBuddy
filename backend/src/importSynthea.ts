@@ -307,7 +307,10 @@ async function importConditionAggregates(client: PoolClient, patients: Map<strin
   const eligible = [...groups.entries()].filter(([,group]) => group.people.size >= 5);
   for (const [,group] of groups) if (group.people.size < 5) reason('conditions.csv','skipped','suppressed_group_under_5',group.sourceRows);
   const rows = eligible.map(([key,group]) => ({ source_id:stableId('condition-group',[key]), data_source:DATA_SOURCE, village:group.village, district:group.district, condition_code:group.code, condition_name:group.name, period_start:group.period, case_count:group.people.size }));
-  const saved = await upsertRows(client,'village_condition_analytics',['source_id','data_source','village','district','condition_code','condition_name','period_start','case_count'],rows,['village','district','condition_code','condition_name','period_start','case_count']);
+  // Conflicts on the aggregate's own natural key, not on source_id: that id is a hash of the
+  // village name, so renaming a community in SYNTHEA_VILLAGES updates the row instead of
+  // colliding with it.
+  const saved = await upsertRows(client,'village_condition_analytics',['source_id','data_source','village','district','condition_code','condition_name','period_start','case_count'],rows,['source_id','condition_name','case_count'],['data_source','village','district','condition_code','period_start']);
   imported('conditions.csv',eligible.reduce((total,[,group]) => total + group.sourceRows,0));
   counts('conditions.csv').reasons['aggregated_groups'] = saved.length;
   counts('conditions.csv').reasons['suppressed_groups'] = groups.size - eligible.length;

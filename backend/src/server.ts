@@ -24,7 +24,16 @@ app.use((request, response, next) => {
   if (request.method === 'OPTIONS') return response.sendStatus(204);
   return next();
 });
-app.use('/api/auth', rateLimit({ windowMs: 15 * 60 * 1000, limit: 30, standardHeaders: 'draft-7', legacyHeaders: false }));
+// A shared office or a demo with four open workspaces exhausts a hard 30/15min bucket and the
+// operator sees a dead error instead of a hint. Per-phone OTP throttling in auth.ts is the real
+// abuse control, so this bucket is only the outer fence — and it answers in JSON the client can name.
+app.use('/api/auth', rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: Number(process.env.AUTH_RATE_LIMIT ?? 120),
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'auth_rate_limited' },
+}));
 const asyncRoute = (handler: RequestHandler): RequestHandler => (request, response, next) => {
   Promise.resolve(handler(request, response, next)).catch(next);
 };

@@ -5,198 +5,142 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-// Language translations
+export type Lang = 'en' | 'hi'
+
+/**
+ * Only the strings a first-time user touches are translated: the sign-in path and the patient
+ * workspace. Clinical text, records and prescriptions stay in the source language they were
+ * written in, because a machine-translated dose instruction is a safety problem.
+ */
 export const translations = {
   en: {
-    welcome: "Welcome to MediBuddy",
-    selectRole: "Select Your Role",
+    welcome: "GramHealth",
+    tagline: "Primary care that keeps working when the signal drops.",
+    selectRole: "Choose a workspace",
     patient: "Patient",
-    doctor: "Doctor", 
-    admin: "Admin",
+    doctor: "Doctor",
+    admin: "District admin",
     seller: "Pharmacy",
-    login: "Login",
-    signup: "Sign Up",
-    mobileNumber: "Mobile Number",
-    aadharNumber: "Aadhar Number",
-    otp: "Enter OTP",
-    sendOtp: "Send OTP",
-    verify: "Verify",
-    symptoms: "Describe your symptoms",
-    bookAppointment: "Book Appointment",
-    viewRecords: "View Health Records",
-    emergencyServices: "Emergency Services",
-    governmentSchemes: "Government Schemes",
-    medicineAvailability: "Medicine Availability",
-    aiSymptomChecker: "AI Symptom Checker",
-    language: "Language"
+    login: "Sign in",
+    mobileNumber: "Mobile number",
+    otp: "Verification code",
+    sendOtp: "Send code",
+    verify: "Verify and enter",
+    symptoms: "Describe how you feel, in a sentence or two.",
+    bookAppointment: "Book an appointment",
+    viewRecords: "Health records",
+    emergencyServices: "Emergency",
+    governmentSchemes: "Government schemes",
+    medicineAvailability: "Medicine availability",
+    aiSymptomChecker: "Symptom guidance",
+    language: "Language",
   },
   hi: {
-    welcome: "मेडीबडी में आपका स्वागत है",
-    selectRole: "अपनी भूमिका चुनें",
+    welcome: "ग्राम स्वास्थ्य",
+    tagline: "सिग्नल जाए, सेवा न रुके।",
+    selectRole: "अपना वर्कस्पेस चुनें",
     patient: "मरीज़",
     doctor: "डॉक्टर",
-    admin: "प्रशासक",
+    admin: "जिला प्रशासक",
     seller: "दवाखाना",
     login: "लॉग इन",
-    signup: "साइन अप",
     mobileNumber: "मोबाइल नंबर",
-    aadharNumber: "आधार नंबर",
-    otp: "ओटीपी दर्ज करें",
-    sendOtp: "ओटीपी भेजें",
+    otp: "सत्यापन कोड",
+    sendOtp: "कोड भेजें",
     verify: "सत्यापित करें",
-    symptoms: "अपने लक्षणों का वर्णन करें",
+    symptoms: "दो पंक्तियों में बताइए कि आपको कैसा लग रहा है।",
     bookAppointment: "अपॉइंटमेंट बुक करें",
-    viewRecords: "स्वास्थ्य रिकॉर्ड देखें",
-    emergencyServices: "आपातकालीन सेवाएं",
+    viewRecords: "स्वास्थ्य रिकॉर्ड",
+    emergencyServices: "आपातकाल",
     governmentSchemes: "सरकारी योजनाएं",
-    medicineAvailability: "दवा उपलब्धता",
-    aiSymptomChecker: "एआई लक्षण जांचकर्ता",
-    language: "भाषा"
+    medicineAvailability: "दवा की उपलब्धता",
+    aiSymptomChecker: "लक्षण मार्गदर्शन",
+    language: "भाषा",
   },
-  pa: {
-    welcome: "ਮੈਡੀਬੱਡੀ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ",
-    selectRole: "ਆਪਣੀ ਭੂਮਿਕਾ ਚੁਣੋ",
-    patient: "ਮਰੀਜ਼",
-    doctor: "ਡਾਕਟਰ",
-    admin: "ਪ੍ਰਸ਼ਾਸਕ",
-    seller: "ਦਵਾਈ ਦੁਕਾਨ",
-    login: "ਲਾਗਇਨ",
-    signup: "ਸਾਈਨ ਅੱਪ",
-    mobileNumber: "ਮੋਬਾਈਲ ਨੰਬਰ",
-    aadharNumber: "ਆਧਾਰ ਨੰਬਰ",
-    otp: "ਓਟੀਪੀ ਦਾਖਲ ਕਰੋ",
-    sendOtp: "ਓਟੀਪੀ ਭੇਜੋ",
-    verify: "ਤਸਦੀਕ ਕਰੋ",
-    symptoms: "ਆਪਣੇ ਲੱਛਣਾਂ ਦਾ ਵਰਣਨ ਕਰੋ",
-    bookAppointment: "ਮੁਲਾਕਾਤ ਬੁੱਕ ਕਰੋ",
-    viewRecords: "ਸਿਹਤ ਰਿਕਾਰਡ ਦੇਖੋ",
-    emergencyServices: "ਐਮਰਜੈਂਸੀ ਸੇਵਾਵਾਂ",
-    governmentSchemes: "ਸਰਕਾਰੀ ਯੋਜਨਾਵਾਂ",
-    medicineAvailability: "ਦਵਾਈ ਦੀ ਉਪਲਬਧਤਾ",
-    aiSymptomChecker: "ਏਆਈ ਲੱਛਣ ਜਾਂਚਕਰਤਾ",
-    language: "ਭਾਸ਼ਾ"
-  }
 };
 
-// Symptom analysis result interface
-interface SymptomAnalysis {
-  condition: string;
+export interface SymptomGuidance {
+  readout: string;
   severity: string;
-  recommendations: string[];
-  homeRemedies: string[];
-  urgency: string;
+  nextSteps: string[];
+  selfCare: string[];
+  priority: 'High' | 'Medium' | 'Low';
 }
 
-// AI Symptom Analysis - Different responses for different symptoms
-export const analyzeSymptoms = (symptoms: string): SymptomAnalysis => {
-  const symptomLower = symptoms.toLowerCase();
-  
-  if (symptomLower.includes('fever') || symptomLower.includes('बुखार') || symptomLower.includes('ਬੁਖਾਰ')) {
-    return {
-      condition: "Fever",
-      severity: "Moderate",
-      recommendations: [
-        "Rest and stay hydrated",
-        "Take paracetamol as per dosage",
-        "Monitor temperature regularly",
-        "Consult doctor if fever persists >3 days"
-      ],
-      homeRemedies: [
-        "Drink warm water with honey and lemon",
-        "Apply cold compress on forehead",
-        "Consume light, easily digestible food"
-      ],
-      urgency: "Medium"
-    };
-  } else if (symptomLower.includes('cough') || symptomLower.includes('खांसी') || symptomLower.includes('ਖੰਘ')) {
-    return {
-      condition: "Cough",
-      severity: "Mild",
-      recommendations: [
-        "Stay hydrated with warm liquids",
-        "Avoid cold foods and drinks",
-        "Use humidifier if available",
-        "Consult doctor if cough persists >2 weeks"
-      ],
-      homeRemedies: [
-        "Honey and ginger tea",
-        "Steam inhalation with mint leaves",
-        "Turmeric milk before bed"
-      ],
-      urgency: "Low"
-    };
-  } else if (symptomLower.includes('headache') || symptomLower.includes('सिरदर्द') || symptomLower.includes('ਸਿਰ ਦਰਦ')) {
-    return {
-      condition: "Headache",
-      severity: "Mild to Moderate",
-      recommendations: [
-        "Rest in a dark, quiet room",
-        "Apply cold or warm compress",
-        "Stay hydrated",
-        "Avoid screen time"
-      ],
-      homeRemedies: [
-        "Peppermint oil massage on temples",
-        "Ginger tea",
-        "Adequate sleep and regular meals"
-      ],
-      urgency: "Low"
-    };
-  } else if (symptomLower.includes('stomach') || symptomLower.includes('पेट') || symptomLower.includes('ਪੇਟ')) {
-    return {
-      condition: "Stomach Issues",
-      severity: "Mild",
-      recommendations: [
-        "Eat light, bland foods",
-        "Stay hydrated with ORS",
-        "Avoid spicy and oily foods",
-        "Rest and avoid stress"
-      ],
-      homeRemedies: [
-        "Cumin water (jeera water)",
-        "Buttermilk with mint",
-        "Fennel seeds after meals"
-      ],
-      urgency: "Medium"
-    };
-  } else if (symptomLower.includes('chest pain') || symptomLower.includes('सीने में दर्द') || symptomLower.includes('ਛਾਤੀ ਵਿੱਚ ਦਰਦ')) {
-    return {
-      condition: "Chest Pain",
-      severity: "High",
-      recommendations: [
-        "Seek immediate medical attention",
-        "Do not ignore chest pain",
-        "Call emergency services",
-        "Avoid physical exertion"
-      ],
-      homeRemedies: [
-        "Sit upright and try to stay calm",
-        "Loosen tight clothing",
-        "Take slow, deep breaths"
-      ],
-      urgency: "High"
-    };
-  } else {
-    return {
-      condition: "General Symptoms",
-      severity: "Unknown",
-      recommendations: [
-        "Monitor your symptoms closely",
-        "Maintain a symptom diary",
-        "Consult healthcare provider",
-        "Stay hydrated and rest"
-      ],
-      homeRemedies: [
-        "Maintain healthy diet",
-        "Get adequate sleep",
-        "Practice stress management"
-      ],
-      urgency: "Medium"
-    };
+/**
+ * Keyword guidance, not a model. It never names a diagnosis and never suggests a dose beyond
+ * what the patient already has on hand. The label on the screen has to say the same thing.
+ */
+const guidance = (
+  readout: string,
+  severity: string,
+  priority: SymptomGuidance['priority'],
+  nextSteps: string[],
+  selfCare: string[],
+): SymptomGuidance => ({ readout, severity, priority, nextSteps, selfCare });
+
+export const analyzeSymptoms = (symptoms: string): SymptomGuidance => {
+  const text = symptoms.toLowerCase();
+
+  if (/(chest pain|सीने में दर्द|breathless|सांस)/.test(text)) {
+    return guidance(
+      'Chest pain or breathlessness',
+      'Needs a clinician now',
+      'High',
+      ['Call 112 or 108 before doing anything else', 'Do not walk to the clinic alone', 'Sit upright and keep the phone in reach', 'Tell someone nearby what you feel'],
+      ['Loosen tight clothing', 'Breathe slowly, do not lie flat', 'Nothing to eat or drink until help arrives'],
+    );
   }
+
+  if (/(fever|बुखार|temperature)/.test(text)) {
+    return guidance(
+      'Fever',
+      'Usually self-limiting',
+      'Medium',
+      ['Book a consult if it crosses three days', 'Note the temperature and time twice a day', 'Watch for breathlessness, rash, or reduced urine', 'Any fever with stiffness of the neck needs same-day care'],
+      ['Plenty of fluids, small and frequent', 'Tepid sponging if the skin feels burning', 'Light food, no force-feeding'],
+    );
+  }
+
+  if (/(cough|खांसी|throat|गला)/.test(text)) {
+    return guidance(
+      'Cough or sore throat',
+      'Usually mild',
+      'Low',
+      ['A cough past two weeks should be examined', 'Breathlessness or blood in sputum: same-day care', 'Steam helps most in the evening'],
+      ['Warm water, honey and ginger', 'Salt-water gargle twice a day', 'Sleep with the head raised'],
+    );
+  }
+
+  if (/(headache|सिरदर्द|migraine)/.test(text)) {
+    return guidance(
+      'Headache',
+      'Usually mild to moderate',
+      'Low',
+      ['Sudden worst-ever headache: go to the clinic now', 'Headache with vision change or vomiting: same day', 'Rest from screens for an hour in a dark room'],
+      ['Cold compress on the forehead', 'Water first, then wait twenty minutes', 'Regular meals, no skipped breakfast'],
+    );
+  }
+
+  if (/(stomach|पेट|diarrh|loose|vomit)/.test(text)) {
+    return guidance(
+      'Stomach upset',
+      'Usually mild, dehydration is the risk',
+      'Medium',
+      ['ORS after every loose motion', 'Blood in stool or severe pain: same-day care', 'No food if vomiting, sips of fluid only for two hours'],
+      ['Jeera water once cooled', 'Banana, curd and rice as the stomach settles', 'Avoid milk, spicy and oily food for two days'],
+    );
+  }
+
+  return guidance(
+    'Symptoms that do not match a common pattern',
+    'Not classifiable here',
+    'Medium',
+    ['Write down when it started and what makes it worse', 'Book a consult and read the note out to the doctor', 'New swelling, numbness or confusion: same-day care'],
+    ['Rest, fluids and regular meals', 'Keep taking any medicine already prescribed', 'Note the pattern for the next two days'],
+  );
 };
 
-// Storage utilities
 export const saveToStorage = (key: string, data: unknown) => {
   localStorage.setItem(key, JSON.stringify(data));
 };
@@ -206,32 +150,39 @@ export const getFromStorage = (key: string): unknown => {
   return data ? JSON.parse(data) : null;
 };
 
-// Mock data for development
-export const mockMedicines = [
-  { id: 1, name: "Paracetamol", stock: 500, price: 10, pharmacy: "City Pharmacy" },
-  { id: 2, name: "Amoxicillin", stock: 200, price: 45, pharmacy: "Health Plus" },
-  { id: 3, name: "Crocin", stock: 300, price: 15, pharmacy: "MedStore" },
-  { id: 4, name: "Cetirizine", stock: 150, price: 25, pharmacy: "Care Pharmacy" }
-];
-
-export const mockAppointments = [
-  { id: 1, doctorName: "Dr. Sharma", date: "2025-01-15", time: "10:00 AM", status: "confirmed" },
-  { id: 2, doctorName: "Dr. Patel", date: "2025-01-16", time: "2:00 PM", status: "pending" }
-];
-
+/**
+ * National and state coverages that apply in Uttarakhand. Eligibility is decided by the CSC or
+ * the district health team, never by this app, so the copy says where to ask instead of
+ * guessing from data the platform does not hold.
+ */
 export const governmentSchemes = [
   {
-    name: "Ayushman Bharat",
-    description: "Free healthcare coverage up to ₹5 lakh per family per year",
-    eligibility: "BPL families, rural families with specific criteria",
-    applicationProcess: "Visit nearest Common Service Center with Aadhar card",
-    benefits: ["Free hospitalization", "Pre and post hospitalization expenses", "Day care procedures"]
+    name: 'Ayushman Bharat PM-JAY',
+    cover: '₹5 lakh per family per year',
+    description: 'In-patient care at empanelled government and private hospitals across India. Cover is family-based and decided on SEAD deprivation scores, not on income you declare here.',
+    whereToAsk: 'Common Service Centre (CSC) or the empanelled hospital desk, with Aadhaar and one ration or voter ID.',
+    benefits: ['Cashless admission', 'Pre and post-hospitalisation days covered', 'No upper age limit or premium'],
   },
   {
-    name: "Punjab Health Card",
-    description: "State health insurance scheme for Punjab residents",
-    eligibility: "All Punjab residents with valid address proof",
-    applicationProcess: "Apply online at Punjab Health Department portal",
-    benefits: ["Cashless treatment", "Coverage for chronic diseases", "Emergency services"]
-  }
+    name: 'Mukhyamantri Swasthya Yojana',
+    cover: 'Uttarakhand state top-up',
+    description: 'State support for treatment costs at Uttarakhand government facilities for residents whose bills fall outside central cover.',
+    whereToAsk: 'The civil hospital medical social work desk in your district, or your ANM for a referral.',
+    benefits: ['Government facility treatment', 'Referral transport support', 'Works alongside PM-JAY'],
+  },
+  {
+    name: 'Janani Shishu Suraksha Karyakram',
+    cover: 'Free delivery and care',
+    description: 'Free institutional delivery, C-section, drugs, diagnostics and one day of diet for mother and newborn, with no out-of-pocket charge.',
+    whereToAsk: 'Your sub-centre or district hospital at the time of admission.',
+    benefits: ['Free delivery including C-section', 'Free diagnostics and drugs', 'Home-to-facility transport'],
+  },
+];
+
+export const VILLAGES = [
+  { name: 'Massoori', district: 'Dehradun' },
+  { name: 'Gairsain', district: 'Almora' },
+  { name: 'Mana', district: 'Chamoli' },
+  { name: 'Devprayag', district: 'Pauri Garhwal' },
+  { name: 'Jharigaon', district: 'Uttarkashi' },
 ];
