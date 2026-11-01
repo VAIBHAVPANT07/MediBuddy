@@ -108,7 +108,7 @@ export function PharmacyStock() {
         actions={
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-role text-white hover:bg-role/90"><PackagePlus /> Add medicine</Button>
+              <Button className="bg-role text-primary-foreground hover:bg-role/90"><PackagePlus /> Add medicine</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
@@ -135,7 +135,7 @@ export function PharmacyStock() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button className="bg-role text-white hover:bg-role/90" onClick={submit} disabled={busy}>{busy ? 'Saving…' : 'Save to stock'}</Button>
+                <Button className="bg-role text-primary-foreground hover:bg-role/90" onClick={submit} disabled={busy}>{busy ? 'Saving…' : 'Save to stock'}</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>

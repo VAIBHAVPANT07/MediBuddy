@@ -29,57 +29,80 @@ Signature:   The Sync Ledger — one live panel, on the landing page and in ever
 Emotion:     Calm authority. Nothing is decorative; everything is a status you can act on.
 Motion verb: "Dispatch." Elements settle into place and get stamped, the way mail is sorted —
              short moves, one confirmation pulse, no floating fades.
-Screenshot:  The dark landing ledger: five village nodes lit, a queue draining upward into the
-             district node, a monospace counter ticking from 14 queued to 0 queued / 14 synced.
+Screenshot:  The olive hero at dusk: three ridges cut out against a low gold sun, the headline set
+             in Playfair across three masked lines, and the Sync Ledger raised as a panel beside it
+             with a monospace counter ticking from 14 queued to 0 queued / 14 synced.
 ```
 
 ## Art direction
 
+The ground is a parchment page and the chrome is the dark of a deodar ridge at dusk. Everything
+warm: no pure black, no pure white, no cool grey.
+
 ### Palette
 
-Named by role. No pure black or white except inside the dark ground.
+Named by role.
 
 | Token     | Value     | Use                                              |
 |-----------|-----------|--------------------------------------------------|
-| ground    | `#F1F2EF` | page background, chalk-cool, never cream         |
-| paper     | `#FFFFFF` | cards, table rows                                |
-| ink       | `#0F1714` | text, dark chrome                                |
-| pine      | `#145C46` | primary action, patient role                     |
-| mint      | `#5FD3A0` | synced/online state on dark ground only          |
-| saffron   | `#D98B14` | queued/offline state, doctor's waiting room      |
-| vermilion | `#BE3A1E` | emergency, cancelled, low stock                  |
-| slate     | `#31537F` | doctor role                                      |
-| umber     | `#8A4B1E` | administrator role                               |
-| teal      | `#2F6B67` | pharmacy role                                    |
-| muted     | `#63716A` | secondary copy                                   |
-| line      | `#DCE0DA` | hairlines, dividers                              |
+| ground    | `#F7F2E9` | page background, warm parchment                  |
+| paper     | `#FDFBF7` | cards, table rows                                |
+| ink       | `#292F1E` | dark bands, headlines on light                   |
+| walnut    | `#392C0E` | body text                                        |
+| dusk      | `#1A2315` | hero ground, one step below `ink`                |
+| olive     | `#32412A` | primary action                                   |
+| gold      | `#D2A941` | filled call to action on dark ground             |
+| gilt      | `#EBCB7A` | the accent line of a headline, on dark ground    |
+| brass     | `#775F22` | default role accent, links, active states        |
+| sage      | `#51733B` | synced/online state on light ground              |
+| amber     | `#BF7618` | queued/offline state on light ground             |
+| rust      | `#A33E1F` | emergency, cancelled, low stock                  |
+| muted     | `#6C5C42` | secondary copy, 4.5:1 on parchment               |
+| line      | `#DFD6C3` | hairlines, dividers                              |
 
-Role accents are deep, low-chroma and sit in the same family as `pine`, so a workspace change
-reads as "different desk, same building".
+Signal colours are re-declared inside `.band` (`--queued`, `--synced`, `--alert`) so a status word
+keeps its meaning and its contrast on either ground.
+
+Role accents stay in the warm family — olive for the patient, dark brass for the doctor, rust for
+the district, pine for the pharmacy — so a workspace change reads as "different desk, same
+building". They are all held at or below 29% lightness: a role surface is filled with the accent
+and labelled in cream, and a mid-tone fill eats the contrast of secondary copy. On `bg-role` the
+label, hint and icon sit at 80/85/90% cream, never lower.
+
+| Role accent | Value       |
+|-------------|-------------|
+| patient     | `#36482E`   |
+| doctor      | `#674E1E`   |
+| admin       | `#733721`   |
+| pharmacy    | `#32524E`   |
 
 ### Type
 
-- **Display:** Bricolage Grotesque, 600–800, tight tracking at every size. Headlines are set
-  as statements, sentence case, no italics.
+- **Display:** Playfair Display, 400–700, tracking −0.012 to −0.02em. Headlines are set as
+  statements, sentence case, and they break by sense, never by width.
 - **Text and UI:** Satoshi, 400/500/700. Body 16px minimum, 17px for the patient path.
-- **Data:** Satoshi Mono for counts, ids, timestamps, statuses and the ledger. Tabular figures
+- **Data:** JetBrains Mono for counts, ids, timestamps, statuses and the ledger. Tabular figures
   are mandatory — a health number that jitters in width is a bug.
 - Fluid scale: 12 / 14 / 16 / 20 / 26 / 34 / clamp for display, no more than seven steps.
 
 ### Shape and rhythm
 
-- One radius rule: 14px on controls, 20px on panels. Nothing pill-shaped except status chips.
+- One radius rule: 8px on controls, 12px on panels. Nothing pill-shaped except status dots and meters.
 - Hairline dividers instead of shadows; elevation only on dialogs and the ledger card.
-- Sections alternate a full-bleed dark band and a chalk band. No two adjacent sections share a
+- Sections alternate a full-bleed dark band and a parchment band. No two adjacent sections share a
   layout family.
+- The hero is the one full-bleed moment: dusk ground, drawn ridgelines, a low gold sun, and the
+  ledger as a raised panel. It is never repeated below the fold.
 - A 12-column grid at 1320px max, 24px gutter, and a sticky 236px left rail in the workspaces that
   collapses to a horizontal scroll strip below `lg`.
 
 ### What this design refuses
 
-No cream-and-serif editorial, no purple-blue gradient, no three equal feature cards, no eyebrow
-label above every heading, no decorative 01/02/03 numbering, no scroll-jacking, no hidden
-cursor, no fake dashboards. Where a feed is not connected, the panel says so in plain words.
+No stock photography, no gradient-painted headline text, no glassmorphism, no purple-blue, no three
+equal feature cards, no decorative 01/02/03 numbering without a list to number, no scroll-jacking,
+no hidden cursor, no fake dashboards. The valley is drawn in SVG rather than photographed: about
+2 KB, no request, and no invented image of a real place. Where a feed is not connected, the panel
+says so in plain words.
 
 ## Concept driver
 

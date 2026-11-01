@@ -8,12 +8,12 @@ import { SyncRail } from '@/components/sync-ledger';
 import { useSession, type Role } from '@/lib/session';
 import { cn } from '@/lib/utils';
 
-/** Deep, low-chroma accents: a different desk in the same building, not a different product. */
+/** Warm, low-chroma accents: a different desk in the same building, not a different product. */
 export const roleAccent: Record<Role, string> = {
-  patient: '162 64% 22%',
-  doctor: '214 44% 35%',
-  admin: '25 64% 33%',
-  seller: '176 39% 30%',
+  patient: '100 22% 23%',
+  doctor: '40 55% 26%',
+  admin: '16 55% 29%',
+  seller: '172 24% 26%',
 };
 
 export interface WorkspaceNavItem {
@@ -46,7 +46,7 @@ export function Workspace({ role, workspaceName, nav, brief }: WorkspaceProps) {
 
   return (
     <div className="min-h-screen bg-background" style={{ '--role': roleAccent[role] } as CSSProperties}>
-      <a href="#workspace-main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-white">
+      <a href="#workspace-main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-primary-foreground">
         Skip to workspace
       </a>
 
@@ -87,13 +87,13 @@ export function Workspace({ role, workspaceName, nav, brief }: WorkspaceProps) {
                   className={({ isActive }) =>
                     cn(
                       'group flex items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] font-medium whitespace-nowrap transition',
-                      isActive ? 'bg-role text-white' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+                      isActive ? 'bg-role text-primary-foreground' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                     )
                   }
                 >
                   {({ isActive }) => (
                     <>
-                      <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-white' : 'text-muted-foreground group-hover:text-role')} />
+                      <Icon className={cn('h-4 w-4 shrink-0', isActive ? 'text-primary-foreground' : 'text-muted-foreground group-hover:text-role')} />
                       <span>{label}</span>
                     </>
                   )}
@@ -126,7 +126,7 @@ export function PageHead({ title, lede, actions }: { title: ReactNode; lede?: Re
   return (
     <div className="mb-7 flex flex-wrap items-end justify-between gap-4 border-b pb-6">
       <div className="max-w-2xl">
-        <h1 className="display text-[32px] leading-[1.05] tracking-[-0.03em] sm:text-[40px]">{title}</h1>
+        <h1 className="display text-[34px] leading-[1.06] tracking-[-0.015em] sm:text-[42px]">{title}</h1>
         {lede && <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">{lede}</p>}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, KeyRound, Landmark, ShieldCheck, Stethoscope, Store, Users } from 'lucide-react';
 import { Logo } from '@/components/ui-kit';
+import { Ridgeline } from '@/components/ridgeline';
 import { useSession, workspacePath, type Role } from '@/lib/session';
 import { describeApiError, requestOtp, verifyOtp } from '@/lib/api';
 import { cn } from '@/lib/utils';
@@ -93,25 +94,30 @@ export default function SignIn() {
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[0.92fr_1.08fr]">
       {/* The claim, sized to the door you chose. */}
-      <aside className="band relative hidden flex-col justify-between overflow-hidden px-10 py-12 lg:flex">
-        <div className="contour absolute inset-0 opacity-[0.18]" aria-hidden="true" />
-        <Link to="/" className="relative flex items-center gap-3 text-white transition hover:text-white/80">
+      <aside className="band relative hidden flex-col justify-between overflow-hidden bg-[hsl(100_24%_11%)] px-10 py-12 lg:flex">
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-[65%] bg-[radial-gradient(70%_60%_at_60%_20%,hsl(43_72%_58%_/_0.2),transparent_70%)]"
+        />
+        <Ridgeline />
+        <div className="contour absolute inset-0 opacity-[0.14]" aria-hidden="true" />
+        <Link to="/" className="relative flex items-center gap-3 text-primary-foreground transition hover:text-primary-foreground/80">
           <Logo />
         </Link>
         <div className="relative max-w-md">
-          <p className="label mb-4 text-white/45">{door.label} workspace</p>
+          <p className="label mb-4 text-[hsl(43_74%_70%)]">{door.label} workspace</p>
           <motion.h1
             key={door.role}
             initial={reduced ? false : { opacity: 0, y: 14 }}
             animate={reduced ? undefined : { opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: [0.16, 0.84, 0.28, 1] }}
-            className="display text-[44px] leading-[1.03] tracking-[-0.035em] text-white xl:text-[54px]"
+            className="display text-[46px] leading-[1.05] tracking-[-0.018em] text-primary-foreground xl:text-[56px]"
           >
             {door.headline}
           </motion.h1>
-          <p className="mt-5 text-[15px] leading-relaxed text-white/60">{door.lede}</p>
+          <p className="mt-5 text-[15px] leading-relaxed text-primary-foreground/65">{door.lede}</p>
         </div>
-        <p className="relative flex items-start gap-2.5 text-[12.5px] leading-relaxed text-white/45">
+        <p className="relative flex items-start gap-2.5 text-[12.5px] leading-relaxed text-primary-foreground/70">
           <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
           Sign-in is a phone number and a code. Nothing here stores a password.
         </p>
@@ -141,7 +147,7 @@ export default function SignIn() {
                 className={cn(
                   'flex flex-col items-start gap-3 rounded-[var(--radius)] border p-4 text-left transition',
                   role === value
-                    ? 'border-transparent bg-ink text-white shadow-lift'
+                    ? 'band border-transparent shadow-lift'
                     : 'bg-card hover:border-role/40 hover:text-role',
                 )}
               >
@@ -173,7 +179,7 @@ export default function SignIn() {
               type="button"
               onClick={() => void sendCode()}
               disabled={busy || phone.length !== 10}
-              className="shrink-0 bg-role px-5 text-[14px] font-medium text-white transition hover:bg-role/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+              className="shrink-0 bg-role px-5 text-[14px] font-medium text-primary-foreground transition hover:bg-role/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
             >
               {busy && !challenge ? 'Sending…' : challenge ? 'Resend' : 'Send code'}
             </button>
@@ -217,7 +223,7 @@ export default function SignIn() {
                   type="button"
                   onClick={() => void verifyCode()}
                   disabled={busy || otp.length !== 6}
-                  className="flex shrink-0 items-center gap-2 bg-role px-5 text-[14px] font-medium text-white transition hover:bg-role/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+                  className="flex shrink-0 items-center gap-2 bg-role px-5 text-[14px] font-medium text-primary-foreground transition hover:bg-role/90 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
                 >
                   {busy ? 'Checking…' : 'Enter workspace'}
                   {!busy && <ArrowRight className="h-4 w-4" />}

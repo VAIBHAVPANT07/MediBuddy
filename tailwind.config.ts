@@ -18,7 +18,7 @@ export default {
       fontFamily: {
         // Devanagari falls through to the system face so the Hindi path needs no download.
         sans: ['Satoshi', '"Nirmala UI"', '"Kohinoor Devanagari"', 'system-ui', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', '"Nirmala UI"', 'Georgia', 'sans-serif'],
+        display: ['"Playfair Display"', '"Nirmala UI"', 'Georgia', 'serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
@@ -79,14 +79,14 @@ export default {
         panel: "var(--radius-panel)",
       },
       boxShadow: {
-        lift: "0 20px 44px -28px hsl(158 21% 8% / 0.38)",
-        stamp: "0 0 0 1px hsl(var(--role) / 0.16), 0 12px 28px -22px hsl(158 21% 8% / 0.4)",
+        lift: "0 22px 40px -30px hsl(41 60% 14% / 0.34)",
+        stamp: "0 0 0 1px hsl(var(--role) / 0.22), 0 14px 26px -22px hsl(41 60% 14% / 0.36)",
       },
       fontSize: {
-        // Fluid display steps, tuned down for a 390px phone rather than squashed.
-        hero: ["clamp(2.75rem, 5.1vw, 4.35rem)", { lineHeight: "0.94", letterSpacing: "-0.035em" }],
-        section: ["clamp(2rem, 4.2vw, 3.4rem)", { lineHeight: "0.98", letterSpacing: "-0.028em" }],
-        metric: ["clamp(2.4rem, 4.6vw, 3.8rem)", { lineHeight: "1", letterSpacing: "-0.03em" }],
+        // Fluid display steps. A serif needs less negative tracking than a grotesque.
+        hero: ["clamp(2.9rem, 5.4vw, 4.9rem)", { lineHeight: "1.02", letterSpacing: "-0.018em" }],
+        section: ["clamp(2rem, 4.2vw, 3.4rem)", { lineHeight: "1.06", letterSpacing: "-0.014em" }],
+        metric: ["clamp(2.4rem, 4.6vw, 3.8rem)", { lineHeight: "1", letterSpacing: "-0.02em" }],
       },
       keyframes: {
         "accordion-down": {

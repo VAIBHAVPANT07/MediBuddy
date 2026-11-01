@@ -7,9 +7,9 @@
    waits on a CDN that a village connection may not reach. */
 
 @font-face {
-  font-family: 'Bricolage Grotesque';
-  src: url('/fonts/bricolage-grotesque-200_800-normal.woff2') format('woff2');
-  font-weight: 200 800;
+  font-family: 'Playfair Display';
+  src: url('/fonts/playfair-display-400_900-normal.woff2') format('woff2');
+  font-weight: 400 900;
   font-style: normal;
   font-display: swap;
 }
@@ -46,51 +46,51 @@
 
 @layer base {
   :root {
-    /* ground, ink, lines */
-    --background: 80 10% 94%;
-    --foreground: 158 21% 8%;
-    --card: 0 0% 100%;
-    --card-foreground: 158 21% 8%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 158 21% 8%;
-    --border: 100 9% 87%;
-    --input: 100 9% 80%;
-    --line: 100 9% 87%;
-    --muted: 90 12% 93%;
-    --muted-foreground: 150 7% 42%;
+    /* ground, ink, lines — parchment, walnut, hairlines the colour of aged paper */
+    --background: 40 45% 94%;
+    --foreground: 41 60% 14%;
+    --card: 43 60% 98%;
+    --card-foreground: 41 60% 14%;
+    --popover: 43 60% 98%;
+    --popover-foreground: 41 60% 14%;
+    --border: 41 30% 82%;
+    --input: 41 26% 74%;
+    --line: 41 30% 82%;
+    --muted: 41 32% 90%;
+    --muted-foreground: 38 24% 34%;
 
     /* action and states */
-    --primary: 162 64% 22%;
-    --primary-foreground: 80 10% 97%;
-    --ring: 162 64% 22%;
-    --secondary: 90 12% 93%;
-    --secondary-foreground: 158 21% 8%;
-    --accent: 160 30% 93%;
-    --accent-foreground: 162 64% 22%;
-    --destructive: 11 73% 43%;
-    --destructive-foreground: 0 0% 100%;
+    --primary: 100 22% 21%;
+    --primary-foreground: 42 50% 93%;
+    --ring: 43 55% 34%;
+    --secondary: 42 42% 88%;
+    --secondary-foreground: 41 60% 14%;
+    --accent: 42 58% 87%;
+    --accent-foreground: 43 55% 26%;
+    --destructive: 14 68% 38%;
+    --destructive-foreground: 43 60% 97%;
 
     /* signal states — the connectivity vocabulary */
-    --queued: 36 83% 46%;
-    --synced: 154 57% 60%;
-    --alert: 11 73% 43%;
+    --queued: 34 78% 42%;
+    --synced: 96 32% 34%;
+    --alert: 14 68% 38%;
 
     /* one radius rule */
-    --radius: 0.875rem;
-    --radius-panel: 1.25rem;
+    --radius: 0.5rem;
+    --radius-panel: 0.75rem;
 
     /* per-workspace accent, overridden by WorkspaceLayout */
-    --role: 162 64% 22%;
-    --ink: 158 21% 8%;
+    --role: 43 55% 30%;
+    --ink: 100 22% 15%;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 150 7% 42%;
-    --sidebar-primary: 158 21% 8%;
-    --sidebar-primary-foreground: 80 10% 97%;
-    --sidebar-accent: 160 30% 93%;
-    --sidebar-accent-foreground: 162 64% 22%;
-    --sidebar-border: 100 9% 87%;
-    --sidebar-ring: 162 64% 22%;
+    --sidebar-background: 43 60% 98%;
+    --sidebar-foreground: 38 24% 34%;
+    --sidebar-primary: 41 60% 14%;
+    --sidebar-primary-foreground: 42 50% 93%;
+    --sidebar-accent: 42 58% 87%;
+    --sidebar-accent-foreground: 43 55% 26%;
+    --sidebar-border: 41 30% 82%;
+    --sidebar-ring: 43 55% 34%;
   }
 
   * {
@@ -138,16 +138,21 @@
 
 @layer components {
   .display {
-    @apply font-display font-semibold tracking-[-0.02em];
+    @apply font-display font-medium tracking-[-0.012em];
   }
 
   .label {
-    @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground;
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground;
   }
 
-  /* A band of the dark ground: used for the ledger, the emergency desk and the footer. */
+  /* A band of the dark ground: used for the ledger, the emergency desk and the footer.
+     The signal colours are lifted here so a status word stays legible on olive ink. */
   .band {
-    @apply bg-ink text-[hsl(80_10%_94%)];
+    @apply bg-ink text-[hsl(42_45%_92%)];
+
+    --queued: 38 85% 62%;
+    --synced: 88 45% 58%;
+    --alert: 14 78% 66%;
   }
 
   .panel {
@@ -160,11 +165,11 @@
 
   /* Status vocabulary. One treatment, used by every portal. */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.08em];
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-1 font-mono text-[11px] font-medium uppercase tracking-[0.1em];
   }
 
   .contour {
-    background-image: radial-gradient(circle at 50% 50%, hsl(var(--role) / 0.06) 0 1px, transparent 1px);
+    background-image: radial-gradient(circle at 50% 50%, hsl(var(--role) / 0.09) 0 1px, transparent 1px);
     background-size: 22px 22px;
   }
 

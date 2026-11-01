@@ -24,15 +24,15 @@ export function SyncLedger({ compact = false }: { compact?: boolean }) {
   const latest = records.slice(0, compact ? 3 : 6);
 
   return (
-    <section className={cn('band overflow-hidden rounded-[var(--radius-panel)]', compact ? 'p-5' : 'p-6 sm:p-8')}>
+    <section className={cn('band overflow-hidden rounded-[var(--radius-panel)] border border-primary-foreground/10', compact ? 'p-5' : 'p-6 sm:p-8')}>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="label mb-2 text-white/45">Sync ledger</p>
+          <p className="label mb-2 text-primary-foreground/70">Sync ledger</p>
           <h2 className="display text-[26px] leading-tight sm:text-[32px]">
             {online ? 'Connected to the district server' : 'Working offline, holding records locally'}
           </h2>
         </div>
-        <span className="chip bg-white/10 text-white/70">
+        <span className="chip bg-primary-foreground/10 text-primary-foreground/70">
           <span className={cn('h-1.5 w-1.5 rounded-full', online ? 'bg-synced beacon' : 'bg-queued')} />
           {online ? 'dispatching' : 'held on device'}
         </span>
@@ -49,38 +49,38 @@ export function SyncLedger({ compact = false }: { compact?: boolean }) {
                 strokeWidth={online ? 1.4 : 1}
                 strokeLinecap="round"
                 className={cn(online && 'flow')}
-                stroke={online ? 'hsl(154 57% 60%)' : 'hsl(80 10% 94% / 0.14)'}
+                stroke={online ? 'hsl(88 45% 58%)' : 'hsl(42 45% 92% / 0.16)'}
                 strokeDasharray={online ? undefined : '3 8'}
                 opacity={online ? 0.75 : 1}
                 style={{ animationDelay: `${index * 0.16}s` }}
               />
-              <circle cx={NODE_X} cy={rowY(index)} r={5} fill={online ? 'hsl(154 57% 60%)' : 'hsl(36 83% 46%)'} className={online ? undefined : 'beacon'} style={{ animationDelay: `${index * 0.2}s` }} />
-              <text x={NODE_X - 20} y={rowY(index) + 4} textAnchor="end" className="fill-white/70" style={{ font: '500 12px "JetBrains Mono", monospace' }}>
+              <circle cx={NODE_X} cy={rowY(index)} r={5} fill={online ? 'hsl(88 45% 58%)' : 'hsl(38 85% 62%)'} className={online ? undefined : 'beacon'} style={{ animationDelay: `${index * 0.2}s` }} />
+              <text x={NODE_X - 20} y={rowY(index) + 4} textAnchor="end" className="fill-primary-foreground/70" style={{ font: '500 12px "JetBrains Mono", monospace' }}>
                 {village.name}
               </text>
             </g>
           ))}
 
           <g transform={`translate(${DEST_X} 151)`}>
-            <circle r="26" fill="none" stroke={online ? 'hsl(154 57% 60% / 0.35)' : 'hsl(80 10% 94% / 0.15)'} strokeWidth="1" />
-            <circle r="38" fill="none" stroke={online ? 'hsl(154 57% 60% / 0.14)' : 'transparent'} strokeWidth="1" className={online ? 'beacon' : undefined} />
-            <rect x="-11" y="-11" width="22" height="22" rx="5" fill={online ? 'hsl(154 57% 60%)' : 'hsl(36 83% 46%)'} />
-            <path d="M-5 0h10M0 -5v10" stroke="hsl(158 21% 8%)" strokeWidth="2.4" strokeLinecap="round" />
-            <text x="0" y="58" textAnchor="middle" className="fill-white/70" style={{ font: '500 11px "JetBrains Mono", monospace' }}>
+            <circle r="26" fill="none" stroke={online ? 'hsl(88 45% 58% / 0.35)' : 'hsl(42 45% 92% / 0.15)'} strokeWidth="1" />
+            <circle r="38" fill="none" stroke={online ? 'hsl(88 45% 58% / 0.14)' : 'transparent'} strokeWidth="1" className={online ? 'beacon' : undefined} />
+            <rect x="-11" y="-11" width="22" height="22" rx="5" fill={online ? 'hsl(88 45% 58%)' : 'hsl(38 85% 62%)'} />
+            <path d="M-5 0h10M0 -5v10" stroke="hsl(100 22% 15%)" strokeWidth="2.4" strokeLinecap="round" />
+            <text x="0" y="58" textAnchor="middle" className="fill-primary-foreground/70" style={{ font: '500 11px "JetBrains Mono", monospace' }}>
               district server
             </text>
           </g>
         </svg>
 
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-white/10">
+          <div className="grid grid-cols-3 gap-px overflow-hidden rounded-lg bg-primary-foreground/10">
             {[
               { label: 'queued', value: queued, tone: 'text-queued' },
               { label: 'synced', value: synced, tone: 'text-synced' },
-              { label: 'villages', value: VILLAGES.length, tone: 'text-white' },
+              { label: 'villages', value: VILLAGES.length, tone: 'text-primary-foreground' },
             ].map((cell) => (
               <div key={cell.label} className="bg-ink px-3 py-4">
-                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{cell.label}</p>
+                <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-primary-foreground/70">{cell.label}</p>
                 <p className={cn('display mt-2 text-[28px] leading-none', cell.tone)} aria-live="polite">
                   <Counter value={cell.value} />
                 </p>
@@ -88,11 +88,11 @@ export function SyncLedger({ compact = false }: { compact?: boolean }) {
             ))}
           </div>
 
-          <ul className="hairline-grid divide-white/10 border-y border-white/10">
+          <ul className="hairline-grid divide-primary-foreground/10 border-y border-primary-foreground/10">
             {latest.map((record) => (
               <li key={record.id} className="flex items-center gap-3 py-2.5 text-[13px]">
-                <span className="font-mono text-[11px] text-white/40">{record.id}</span>
-                <span className="min-w-0 flex-1 truncate text-white/85">{record.kind}</span>
+                <span className="font-mono text-[11px] text-primary-foreground/65">{record.id}</span>
+                <span className="min-w-0 flex-1 truncate text-primary-foreground/85">{record.kind}</span>
                 <span className={cn('font-mono text-[10px] uppercase tracking-[0.1em]', statusTone[record.status])}>{record.status}</span>
               </li>
             ))}
@@ -112,13 +112,13 @@ export function SyncLedger({ compact = false }: { compact?: boolean }) {
             </button>
             <button
               onClick={() => enqueue('Encounter · new village visit')}
-              className="inline-flex items-center gap-2 rounded-lg border border-white/20 px-4 py-2.5 text-[14px] font-medium text-white/80 transition hover:bg-white hover:text-ink"
+              className="inline-flex items-center gap-2 rounded-lg border border-primary-foreground/20 px-4 py-2.5 text-[14px] font-medium text-primary-foreground/80 transition hover:bg-primary-foreground hover:text-ink"
             >
               Save a record <ArrowUpRight className="h-4 w-4" />
             </button>
           </div>
 
-          <p className="text-[12px] leading-relaxed text-white/45">
+          <p className="text-[12px] leading-relaxed text-primary-foreground/70">
             {simulated
               ? 'Simulated disconnect. Records shown here are a demonstration queue: the on-device store that survives a real shutdown is not wired up in this build.'
               : 'Browser reports a live connection. Cut it with the button above, or switch off your machine, to see the queue take over.'}

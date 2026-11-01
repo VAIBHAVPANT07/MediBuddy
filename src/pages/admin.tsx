@@ -336,7 +336,7 @@ export function AdminReports() {
           </p>
         </div>
 
-        <Button size="lg" onClick={download} className="mt-6 bg-role text-white hover:bg-role/90">
+        <Button size="lg" onClick={download} className="mt-6 bg-role text-primary-foreground hover:bg-role/90">
           <FileDown /> Download report
         </Button>
       </Panel>

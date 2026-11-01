@@ -35,3 +35,6 @@ backend/dist
 csv/imaging_studies.csv
 csv/observations.csv
 csv/claims_transactions.csv
+
+# TypeScript incremental build artifacts
+*.tsbuildinfo

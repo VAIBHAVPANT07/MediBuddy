@@ -142,7 +142,7 @@ export function LanguageToggle({ className }: { className?: string }) {
           key={option}
           onClick={() => setLang(option)}
           aria-pressed={lang === option}
-          className={cn('rounded-md px-2.5 py-1 text-[13px] font-medium transition', lang === option ? 'bg-role text-white' : 'text-muted-foreground hover:bg-muted')}
+          className={cn('rounded-md px-2.5 py-1 text-[13px] font-medium transition', lang === option ? 'bg-role text-primary-foreground' : 'text-muted-foreground hover:bg-muted')}
         >
           {option === 'en' ? 'English' : 'हिंदी'}
         </button>
@@ -321,7 +321,7 @@ export function PatientGuidance() {
               </button>
             ))}
           </div>
-          <Button size="lg" onClick={run} disabled={!symptoms.trim()} className="mt-6 w-full bg-role text-white hover:bg-role/90">
+          <Button size="lg" onClick={run} disabled={!symptoms.trim()} className="mt-6 w-full bg-role text-primary-foreground hover:bg-role/90">
             What should I do?
           </Button>
           <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">
@@ -363,7 +363,7 @@ export function PatientGuidance() {
                 </div>
               </div>
               <div className="mt-6 flex flex-wrap gap-2 border-t pt-5">
-                <Button asChild className="bg-role text-white hover:bg-role/90">
+                <Button asChild className="bg-role text-primary-foreground hover:bg-role/90">
                   <Link to="/patient/appointments">Book a consult <ArrowUpRight /></Link>
                 </Button>
                 {result.priority === 'High' && (
@@ -457,7 +457,7 @@ export function PatientAppointments() {
                     key={slot}
                     onClick={() => setTime(slot)}
                     aria-pressed={time === slot}
-                    className={cn('rounded-md border px-3 py-2 font-mono text-[13px] transition', time === slot ? 'border-transparent bg-role text-white' : 'hover:bg-muted')}
+                    className={cn('rounded-md border px-3 py-2 font-mono text-[13px] transition', time === slot ? 'border-transparent bg-role text-primary-foreground' : 'hover:bg-muted')}
                   >
                     {slot}
                   </button>
@@ -466,7 +466,7 @@ export function PatientAppointments() {
             </div>
           </div>
 
-          <Button size="lg" onClick={submit} disabled={!doctorId || !date || !time || busy || providers.length === 0} className="mt-7 w-full bg-role text-white hover:bg-role/90">
+          <Button size="lg" onClick={submit} disabled={!doctorId || !date || !time || busy || providers.length === 0} className="mt-7 w-full bg-role text-primary-foreground hover:bg-role/90">
             {busy ? 'Sending request…' : 'Request appointment'} <Check />
           </Button>
           <p className="mt-3 text-[12px] text-muted-foreground">Slot choice is a request, not a guarantee. The doctor confirms or moves it and you see the change here.</p>
@@ -724,9 +724,9 @@ export function PatientEmergency() {
       <div className="grid gap-6 xl:grid-cols-[1.1fr_1fr]">
         <section className="band rounded-[var(--radius-panel)] p-6 sm:p-8">
           <Ambulance className="h-8 w-8 text-alert" strokeWidth={1.4} />
-          <p className="label mt-6 text-white/45">Do this first</p>
+          <p className="label mt-6 text-primary-foreground/70">Do this first</p>
           <h2 className="display mt-2 text-section">Call before you travel</h2>
-          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-white/70">
+          <p className="mt-4 max-w-md text-[15px] leading-relaxed text-primary-foreground/70">
             Put the phone on speaker, keep the person sitting, and tell the operator the village and the district.
             If the network is weak, walk to higher ground and call again.
           </p>
@@ -735,17 +735,17 @@ export function PatientEmergency() {
               <a
                 key={entry.number}
                 href={`tel:${entry.number}`}
-                className="group flex items-center justify-between gap-4 rounded-lg border border-white/15 px-4 py-3.5 transition hover:bg-white hover:text-ink"
+                className="group flex items-center justify-between gap-4 rounded-lg border border-primary-foreground/15 px-4 py-3.5 transition hover:bg-primary-foreground hover:text-ink"
               >
                 <span>
                   <span className="block text-[14px] font-medium">{entry.label}</span>
-                  <span className="block text-[12px] text-white/55 group-hover:text-ink/60">{entry.note}</span>
+                  <span className="block text-[12px] text-primary-foreground/55 group-hover:text-ink/60">{entry.note}</span>
                 </span>
                 <span className="font-mono text-[20px] font-medium">{entry.number}</span>
               </a>
             ))}
           </div>
-          <p className="mt-7 border-t border-white/10 pt-4 text-[12px] text-white/40">
+          <p className="mt-7 border-t border-primary-foreground/10 pt-4 text-[12px] text-primary-foreground/65">
             Signed in as {phone ? `+91 ${phone.slice(-10)}` : 'a demo account'}. The operator asks for your name and village; the app does not pass them on.
           </p>
         </section>

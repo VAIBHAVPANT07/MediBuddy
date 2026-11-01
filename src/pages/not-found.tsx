@@ -32,11 +32,11 @@ export default function NotFound() {
           initial={reduced ? false : { opacity: 0, y: 18 }}
           animate={reduced ? undefined : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 0.84, 0.28, 1] }}
-          className="display text-[110px] leading-[0.82] tracking-[-0.05em] text-ink sm:text-[160px]"
+          className="display text-[110px] leading-[0.88] tracking-[-0.02em] text-ink sm:text-[160px]"
         >
           404
         </motion.p>
-        <h1 className="display mt-8 max-w-xl text-[30px] leading-[1.1] tracking-[-0.03em] sm:text-[38px]">
+        <h1 className="display mt-8 max-w-xl text-[30px] leading-[1.12] tracking-[-0.015em] sm:text-[38px]">
           There is no path here. <span className="text-muted-foreground">The record you wanted may be in a different workspace.</span>
         </h1>
         <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-muted-foreground">

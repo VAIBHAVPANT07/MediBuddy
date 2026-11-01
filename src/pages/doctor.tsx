@@ -184,7 +184,7 @@ export function DoctorQueue() {
                     {!closed && (
                       <div className="flex flex-wrap gap-2">
                         {appointment.status === 'requested' && (
-                          <Button size="sm" className="bg-role text-white hover:bg-role/90" onClick={() => void act(appointment.id, 'approve')}>
+                          <Button size="sm" className="bg-role text-primary-foreground hover:bg-role/90" onClick={() => void act(appointment.id, 'approve')}>
                             <Check /> Approve
                           </Button>
                         )}
@@ -215,7 +215,7 @@ export function DoctorQueue() {
               <DialogFooter>
                 <Button variant="outline" onClick={() => setRescheduling(null)}>Keep current time</Button>
                 <Button
-                  className="bg-role text-white hover:bg-role/90"
+                  className="bg-role text-primary-foreground hover:bg-role/90"
                   disabled={!newTime || !rescheduling}
                   onClick={async () => { if (rescheduling) { await act(rescheduling.id, 'reschedule', new Date(newTime).toISOString()); setRescheduling(null); } }}
                 >
@@ -304,7 +304,7 @@ export function DoctorPatients() {
                 <Button size="sm" variant="outline" className="flex-1" onClick={() => void openHistory(patient)}>
                   <FileText /> History
                 </Button>
-                <Button size="sm" asChild className="flex-1 bg-role text-white hover:bg-role/90">
+                <Button size="sm" asChild className="flex-1 bg-role text-primary-foreground hover:bg-role/90">
                   <Link to="/doctor/prescribe">Prescribe</Link>
                 </Button>
               </div>
@@ -339,7 +339,7 @@ export function DoctorConsult() {
           <div className="flex items-center justify-between gap-3">
             <Chip tone={patientName && online ? 'good' : 'dark'}>{patientName && online ? 'room ready' : patientName ? 'no connection' : 'nobody called'}</Chip>
             <Select value={patientName} onValueChange={setPatientName}>
-              <SelectTrigger className="h-9 w-52 rounded-lg border-white/15 bg-white/5 text-white">
+              <SelectTrigger className="h-9 w-52 rounded-lg border-primary-foreground/15 bg-primary-foreground/5 text-primary-foreground">
                 <SelectValue placeholder="Choose a patient" />
               </SelectTrigger>
               <SelectContent>
@@ -353,17 +353,17 @@ export function DoctorConsult() {
           <div className="grid flex-1 place-items-center text-center">
             {patientName && online ? (
               <div>
-                <div className="mx-auto grid h-24 w-24 place-items-center rounded-[var(--radius-panel)] bg-white/10 font-mono text-[34px] text-white">
+                <div className="mx-auto grid h-24 w-24 place-items-center rounded-[var(--radius-panel)] bg-primary-foreground/10 font-mono text-[34px] text-primary-foreground">
                   {patientName.slice(0, 2).toUpperCase()}
                 </div>
                 <p className="display mt-6 text-[26px]">{patientName}</p>
-                <p className="mt-1 font-mono text-[12px] text-white/50">stand-in room · no media is transmitted</p>
+                <p className="mt-1 font-mono text-[12px] text-primary-foreground/70">stand-in room · no media is transmitted</p>
               </div>
             ) : (
               <div className="max-w-sm">
-                <WifiOff className="mx-auto h-8 w-8 text-white/40" strokeWidth={1.4} />
+                <WifiOff className="mx-auto h-8 w-8 text-primary-foreground/65" strokeWidth={1.4} />
                 <p className="display mt-4 text-[22px]">{patientName ? 'No connection for a live call' : 'Pick a patient to open the room'}</p>
-                <p className="mt-2 text-[14px] leading-relaxed text-white/60">
+                <p className="mt-2 text-[14px] leading-relaxed text-primary-foreground/60">
                   {patientName
                     ? 'Records and prescriptions keep working offline. A video consult cannot, so take the notes below and schedule an in-person visit.'
                     : 'The tele-consult provider is not connected to this build.'}
@@ -376,7 +376,7 @@ export function DoctorConsult() {
             <button
               onClick={() => setMuted((value) => !value)}
               disabled={!patientName || !online}
-              className="grid h-11 w-11 place-items-center rounded-lg bg-white/10 transition enabled:hover:bg-white/20 disabled:opacity-35"
+              className="grid h-11 w-11 place-items-center rounded-lg bg-primary-foreground/10 transition enabled:hover:bg-primary-foreground/20 disabled:opacity-35"
               aria-label={muted ? 'Unmute microphone' : 'Mute microphone'}
               aria-pressed={muted}
             >
@@ -384,12 +384,12 @@ export function DoctorConsult() {
             </button>
             <button
               onClick={toggle}
-              className="rounded-lg border border-white/20 px-4 py-2.5 text-[13px] font-medium text-white/80 transition hover:bg-white hover:text-ink"
+              className="rounded-lg border border-primary-foreground/20 px-4 py-2.5 text-[13px] font-medium text-primary-foreground/80 transition hover:bg-primary-foreground hover:text-ink"
             >
               {online ? 'Simulate dropped call' : 'Restore connection'}
             </button>
             {patientName && (
-              <button onClick={() => setPatientName('')} className="inline-flex items-center gap-2 rounded-lg bg-alert px-4 py-2.5 text-[13px] font-medium text-white transition hover:bg-alert/90">
+              <button onClick={() => setPatientName('')} className="inline-flex items-center gap-2 rounded-lg bg-alert px-4 py-2.5 text-[13px] font-medium text-primary-foreground transition hover:bg-alert/90">
                 <PhoneOff className="h-4 w-4" /> End
               </button>
             )}
@@ -413,7 +413,7 @@ export function DoctorConsult() {
             >
               Save notes
             </Button>
-            <Button asChild className="flex-1 bg-role text-white hover:bg-role/90" disabled={!patientName}>
+            <Button asChild className="flex-1 bg-role text-primary-foreground hover:bg-role/90" disabled={!patientName}>
               <Link to="/doctor/prescribe">Write prescription</Link>
             </Button>
           </div>
@@ -485,7 +485,7 @@ export function DoctorPrescribe() {
             />
           </label>
 
-          <Button size="lg" onClick={submit} disabled={!patientId || !medication.trim() || busy} className="mt-6 w-full bg-role text-white hover:bg-role/90">
+          <Button size="lg" onClick={submit} disabled={!patientId || !medication.trim() || busy} className="mt-6 w-full bg-role text-primary-foreground hover:bg-role/90">
             {busy ? 'Signing…' : 'Sign and send'} <Check />
           </Button>
           <p className="mt-3 text-[12px] leading-relaxed text-muted-foreground">

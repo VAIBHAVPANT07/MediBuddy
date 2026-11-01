@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import { ArrowUpRight, Landmark, Pill, Radio, ShieldCheck, Sparkles, Stethoscope, Store, Users, WifiOff } from 'lucide-react';
 import { Chip, Counter, Logo, Reveal, SectionTitle } from '@/components/ui-kit';
+import { Ridgeline } from '@/components/ridgeline';
 import { SyncLedger } from '@/components/sync-ledger';
 import { useSession, type Role } from '@/lib/session';
 import { useSync } from '@/lib/sync';
@@ -54,13 +55,13 @@ const truthTable: { term: string; tone: 'good' | 'warn'; body: string }[] = [
 /** Line-mask reveal: the headline is built once, and each line arrives under its own clip. */
 function HeroTitle() {
   const reduced = useReducedMotion();
-  const lines = ['Care that holds', 'when the network', 'does not.'];
+  const lines = ['Care that holds', 'when the signal', 'does not.'];
   return (
     <h1 className="display text-hero">
       {lines.map((line, index) => (
         <span key={line} className="block overflow-hidden">
           <motion.span
-            className={cn('block', index === 2 && 'text-role')}
+            className={cn('block', index === 2 && 'text-[hsl(43_74%_70%)]')}
             initial={reduced ? false : { y: '105%' }}
             animate={reduced ? undefined : { y: 0 }}
             transition={{ duration: 0.72, delay: 0.08 + index * 0.09, ease: [0.16, 0.84, 0.28, 1] }}
@@ -81,22 +82,22 @@ function LiveTicker() {
 
   const cells = [
     { label: 'API', value: health ? 'reachable' : 'offline', tone: health ? 'text-synced' : 'text-queued' },
-    { label: 'sample patients', value: health?.data?.patients?.toLocaleString('en-IN') ?? '—', tone: 'text-white' },
-    { label: 'appointments', value: health?.data?.appointments?.toLocaleString('en-IN') ?? '—', tone: 'text-white' },
-    { label: 'communities', value: String(VILLAGES.length), tone: 'text-white' },
+    { label: 'sample patients', value: health?.data?.patients?.toLocaleString('en-IN') ?? '—', tone: 'text-primary-foreground' },
+    { label: 'appointments', value: health?.data?.appointments?.toLocaleString('en-IN') ?? '—', tone: 'text-primary-foreground' },
+    { label: 'communities', value: String(VILLAGES.length), tone: 'text-primary-foreground' },
   ];
 
   return (
     <div className="band mt-14 overflow-hidden rounded-[var(--radius-panel)]">
-      <dl className="grid gap-px bg-white/10 sm:grid-cols-4">
+      <dl className="grid gap-px bg-primary-foreground/10 sm:grid-cols-4">
         {cells.map((cell) => (
           <div key={cell.label} className="bg-ink px-5 py-4">
-            <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{cell.label}</dt>
+            <dt className="font-mono text-[10px] uppercase tracking-[0.12em] text-primary-foreground/70">{cell.label}</dt>
             <dd className={cn('display mt-2 text-[22px] leading-none', cell.tone)}>{cell.value}</dd>
           </div>
         ))}
       </dl>
-      <p className="border-t border-white/10 px-5 py-3 text-[12px] text-white/45">
+      <p className="border-t border-primary-foreground/10 px-5 py-3 text-[12px] text-primary-foreground/70">
         Counts are read live from this installation’s own database and hold a synthetic sample, not Uttarakhand health data.
       </p>
     </div>
@@ -112,26 +113,45 @@ export default function Landing() {
   const { scrollYProgress } = useScroll({ target: storyRef, offset: ['start end', 'end start'] });
   const beam = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
 
+  // The header sits on the dark hero and only takes on the cream ground once the page moves.
+  const [lifted, setLifted] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setLifted(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
-      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-white">
+      <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-primary-foreground">
         Skip to content
       </a>
 
-      <header className="sticky top-0 z-40 border-b border-transparent bg-background/80 backdrop-blur-md">
+      <header
+        className={cn(
+          'sticky top-0 z-40 border-b transition-colors duration-300',
+          lifted ? 'border-line bg-background/85 backdrop-blur-md' : 'border-transparent bg-transparent',
+        )}
+      >
         <div className="mx-auto flex max-w-[1320px] items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
           <Link to="/" aria-label="GramHealth home">
-            <Logo />
+            <Logo className={cn(!lifted && 'text-primary-foreground')} />
           </Link>
-          <nav aria-label="Sections" className="hidden items-center gap-7 text-[14px] text-muted-foreground md:flex">
-            <a href="#doors" className="transition hover:text-foreground">Workspaces</a>
-            <a href="#offline" className="transition hover:text-foreground">Offline</a>
-            <a href="#truth" className="transition hover:text-foreground">What is real</a>
+          <nav aria-label="Sections" className={cn('hidden items-center gap-7 text-[14px] transition-colors md:flex', lifted ? 'text-muted-foreground' : 'text-primary-foreground/65')}>
+            <a href="#doors" className={cn('transition', lifted ? 'hover:text-foreground' : 'hover:text-primary-foreground')}>Workspaces</a>
+            <a href="#offline" className={cn('transition', lifted ? 'hover:text-foreground' : 'hover:text-primary-foreground')}>Offline</a>
+            <a href="#truth" className={cn('transition', lifted ? 'hover:text-foreground' : 'hover:text-primary-foreground')}>What is real</a>
           </nav>
           <div className="flex items-center gap-2">
             <Link
               to={status === 'authenticated' ? '/patient' : '/login'}
-              className="inline-flex items-center gap-2 rounded-lg bg-role px-4 py-2.5 text-[14px] font-medium text-white transition hover:bg-role/90"
+              className={cn(
+                'inline-flex items-center gap-2 rounded-[var(--radius)] px-4 py-2.5 text-[14px] font-medium transition',
+                lifted
+                  ? 'bg-role text-primary-foreground hover:bg-role/90'
+                  : 'border border-primary-foreground/25 text-primary-foreground hover:bg-primary-foreground hover:text-ink',
+              )}
             >
               {status === 'authenticated' ? 'Open workspace' : 'Sign in'}
               <ArrowUpRight className="h-4 w-4" />
@@ -140,50 +160,63 @@ export default function Landing() {
         </div>
       </header>
 
-      <main id="main" className="mx-auto max-w-[1320px] px-4 sm:px-6">
-        {/* Hero: the statement and the proof of it, side by side. */}
-        <section className="grid gap-12 py-14 lg:grid-cols-[1.02fr_1fr] lg:py-20">
-          <div className="flex flex-col justify-center">
-            <HeroTitle />
-            <motion.p
-              className="mt-7 max-w-lg text-[17px] leading-relaxed text-muted-foreground"
-              initial={reduced ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.42 }}
-            >
-              GramHealth runs the village end of primary care: symptom guidance, appointments, records,
-              pharmacy stock and district counts. When the signal drops, the work does not stop; it waits
-              in a queue and dispatches when the link returns.
-            </motion.p>
-            <motion.div
-              className="mt-9 flex flex-wrap gap-3"
-              initial={reduced ? false : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.52 }}
-            >
-              <Link to="/login?role=patient" className="inline-flex items-center gap-2 rounded-lg bg-role px-5 py-3 text-[15px] font-medium text-white transition hover:bg-role/90">
-                Get care now <ArrowUpRight className="h-4 w-4" />
-              </Link>
-              <a href="#doors" className="inline-flex items-center gap-2 rounded-lg border px-5 py-3 text-[15px] font-medium transition hover:border-role hover:text-role">
-                See the four workspaces
-              </a>
-            </motion.div>
-            <div className="mt-9 flex flex-wrap items-center gap-x-6 gap-y-2 text-[13px] text-muted-foreground">
-              <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-role" /> Every record read is audited</span>
-              <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-role" /> Guidance, never a diagnosis</span>
+      <main id="main">
+        {/* Hero: the claim, on the ground the product is built for. */}
+        <section className="relative -mt-[68px] overflow-hidden bg-[hsl(100_24%_11%)] pt-[68px]">
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 h-[70%] bg-[radial-gradient(60%_80%_at_72%_18%,hsl(43_72%_58%_/_0.22),transparent_70%)]"
+          />
+          <Ridgeline />
+          <div className="contour absolute inset-0 opacity-[0.14]" aria-hidden="true" />
+          <div className="relative mx-auto grid max-w-[1320px] gap-14 px-4 pb-24 pt-28 sm:px-6 lg:grid-cols-[1.06fr_1fr] lg:pb-28 lg:pt-36">
+            <div className="flex flex-col justify-center text-primary-foreground">
+              <p className="label mb-6 flex items-center gap-3 text-primary-foreground/55">
+                <span className="h-px w-10 bg-[hsl(43_74%_70%)]" />
+                Primary care · village Uttarakhand
+              </p>
+              <HeroTitle />
+              <motion.p
+                className="mt-8 max-w-xl text-[17px] leading-relaxed text-primary-foreground/70"
+                initial={reduced ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.42 }}
+              >
+                GramHealth runs the village end of primary care: symptom guidance, appointments, records,
+                pharmacy stock and district counts. When the signal drops, the work does not stop; it waits
+                in a queue and dispatches when the link returns.
+              </motion.p>
+              <motion.div
+                className="mt-10 flex flex-wrap gap-3"
+                initial={reduced ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.52 }}
+              >
+                <Link to="/login?role=patient" className="inline-flex items-center gap-2 rounded-[var(--radius)] bg-[hsl(43_62%_54%)] px-6 py-3.5 text-[15px] font-medium text-ink transition hover:bg-[hsl(43_66%_62%)]">
+                  Get care now <ArrowUpRight className="h-4 w-4" />
+                </Link>
+                <a href="#doors" className="inline-flex items-center gap-2 rounded-[var(--radius)] border border-primary-foreground/30 px-6 py-3.5 text-[15px] font-medium transition hover:bg-primary-foreground hover:text-ink">
+                  See the four workspaces
+                </a>
+              </motion.div>
+              <div className="mt-10 flex flex-wrap items-center gap-x-7 gap-y-2 text-[13px] text-primary-foreground/55">
+                <span className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-[hsl(43_74%_70%)]" /> Every record read is audited</span>
+                <span className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-[hsl(43_74%_70%)]" /> Guidance, never a diagnosis</span>
+              </div>
             </div>
-          </div>
 
-          <motion.div
-            className="self-center"
-            initial={reduced ? false : { opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <SyncLedger />
-          </motion.div>
+            <motion.div
+              className="self-center"
+              initial={reduced ? false : { opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <SyncLedger />
+            </motion.div>
+          </div>
         </section>
 
+        <div className="mx-auto max-w-[1320px] px-4 sm:px-6">
         <LiveTicker />
 
         {/* The frictions, stated plainly. */}
@@ -230,18 +263,18 @@ export default function Landing() {
                     navigate(door.to);
                   }}
                 >
-                  <span className="font-mono text-[13px] text-muted-foreground transition group-hover:text-white/70">{String(index + 1).padStart(2, '0')}</span>
+                  <span className="font-mono text-[13px] text-muted-foreground transition group-hover:text-primary-foreground/70">{String(index + 1).padStart(2, '0')}</span>
                   <span className="flex-1">
                     <span className="flex flex-wrap items-baseline gap-x-5 gap-y-1">
-                      <span className="display text-[clamp(1.9rem,4vw,2.9rem)] leading-none transition group-hover:text-white">{door.title}</span>
-                      <span className="text-[15px] text-muted-foreground transition group-hover:text-white/75">{door.line}</span>
+                      <span className="display text-[clamp(1.9rem,4vw,2.9rem)] leading-none transition group-hover:text-primary-foreground">{door.title}</span>
+                      <span className="text-[15px] text-muted-foreground transition group-hover:text-primary-foreground/75">{door.line}</span>
                     </span>
                     <span className="mt-0 grid grid-rows-[0fr] overflow-hidden transition-[grid-template-rows,margin] duration-400 ease-out group-hover:mt-5 group-hover:grid-rows-[1fr]">
                       <span className="min-h-0">
                         <span className="flex flex-wrap gap-x-6 gap-y-2">
                           {door.points.map((point) => (
-                            <span key={point} className="flex items-center gap-2 text-[14px] text-white/80">
-                              <span className="h-1 w-1 rounded-full bg-white/60" />
+                            <span key={point} className="flex items-center gap-2 text-[14px] text-primary-foreground/80">
+                              <span className="h-1 w-1 rounded-full bg-primary-foreground/60" />
                               {point}
                             </span>
                           ))}
@@ -249,8 +282,8 @@ export default function Landing() {
                       </span>
                     </span>
                   </span>
-                  <door.icon className="hidden h-6 w-6 shrink-0 text-muted-foreground transition group-hover:text-white sm:block" strokeWidth={1.4} />
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border transition group-hover:border-white/40 group-hover:bg-white group-hover:text-role">
+                  <door.icon className="hidden h-6 w-6 shrink-0 text-muted-foreground transition group-hover:text-primary-foreground sm:block" strokeWidth={1.4} />
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border transition group-hover:border-primary-foreground/40 group-hover:bg-primary-foreground group-hover:text-role">
                     <ArrowUpRight className="h-4 w-4" />
                   </span>
                   <span className="pointer-events-none absolute inset-x-0 -inset-y-px -z-10 scale-y-[0.94] bg-role opacity-0 transition duration-400 ease-out group-hover:scale-y-100 group-hover:opacity-100" />
@@ -286,7 +319,7 @@ export default function Landing() {
                 <Reveal key={step.title}>
                   <li className="relative rounded-[var(--radius-panel)] border bg-card p-6 pl-16">
                     <span className="absolute left-[7px] top-8 grid h-6 w-6 place-items-center rounded-full border-2 border-background bg-role">
-                      <step.icon className="h-3 w-3 text-white" />
+                      <step.icon className="h-3 w-3 text-primary-foreground" />
                     </span>
                     <p className="label">{step.at}</p>
                     <h3 className="display mt-2 text-[24px] leading-tight">{step.title}</h3>
@@ -315,19 +348,19 @@ export default function Landing() {
         <section className="band mb-20 overflow-hidden rounded-[var(--radius-panel)] px-6 py-14 sm:px-10 sm:py-16">
           <div className="flex flex-wrap items-end justify-between gap-8">
             <div>
-              <p className="label text-white/45">Start where the patient starts</p>
+              <p className="label text-primary-foreground/70">Start where the patient starts</p>
               <h2 className="display mt-3 text-section">
                 Book a consult, <span className="text-synced">then cut the network.</span>
               </h2>
-              <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-white/65">
+              <p className="mt-4 max-w-xl text-[16px] leading-relaxed text-primary-foreground/65">
                 The demo accounts run the whole loop: request, approve, prescribe, publish stock. The sync ledger shows what happens to the record when the link goes.
               </p>
             </div>
-            <Link to="/login" className="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3.5 text-[15px] font-medium text-ink transition hover:bg-white/90">
+            <Link to="/login" className="inline-flex items-center gap-2 rounded-[var(--radius)] bg-[hsl(43_62%_54%)] px-6 py-3.5 text-[15px] font-medium text-ink transition hover:bg-[hsl(43_66%_62%)]">
               Sign in to a workspace <ArrowUpRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-lg bg-white/10 sm:grid-cols-3">
+          <div className="mt-12 grid gap-px overflow-hidden rounded-lg bg-primary-foreground/10 sm:grid-cols-3">
             {[
               ['Guidance offline', 'sorting rules ship with the app'],
               ['Records queued', 'dispatched oldest first'],
@@ -335,37 +368,38 @@ export default function Landing() {
             ].map(([title, body]) => (
               <div key={title} className="bg-ink px-5 py-5">
                 <p className="display text-[19px]">{title}</p>
-                <p className="mt-1.5 text-[13px] text-white/55">{body}</p>
+                <p className="mt-1.5 text-[13px] text-primary-foreground/55">{body}</p>
               </div>
             ))}
           </div>
         </section>
+        </div>
       </main>
 
-      <footer className="border-t bg-card">
-        <div className="mx-auto flex max-w-[1320px] flex-wrap items-start justify-between gap-8 px-4 py-10 sm:px-6">
+      <footer className="band">
+        <div className="mx-auto flex max-w-[1320px] flex-wrap items-start justify-between gap-8 px-4 py-14 sm:px-6">
           <div>
-            <Logo />
-            <p className="mt-3 max-w-sm text-[14px] leading-relaxed text-muted-foreground">
+            <Logo className="text-primary-foreground" />
+            <p className="mt-4 max-w-sm text-[14px] leading-relaxed text-primary-foreground/55">
               Offline-first primary care for village Uttarakhand. Built as an engineering prototype; not a medical device and not a substitute for a clinician.
             </p>
           </div>
           <div className="flex flex-wrap gap-x-10 gap-y-6 text-[14px]">
-            <nav aria-label="Workspaces" className="space-y-2">
-              <p className="label">Workspaces</p>
+            <nav aria-label="Workspaces" className="space-y-2.5">
+              <p className="label text-[hsl(43_74%_70%)]">Workspaces</p>
               {doors.map((door) => (
-                <Link key={door.role} to={door.to} className="block text-muted-foreground transition hover:text-foreground">{door.title}</Link>
+                <Link key={door.role} to={door.to} className="block text-primary-foreground/60 transition hover:text-primary-foreground">{door.title}</Link>
               ))}
             </nav>
-            <div className="space-y-2">
-              <p className="label">Emergency</p>
-              <a href="tel:112" className="block text-muted-foreground transition hover:text-foreground">112 national emergency</a>
-              <a href="tel:108" className="block text-muted-foreground transition hover:text-foreground">108 ambulance</a>
-              <a href="tel:104" className="block text-muted-foreground transition hover:text-foreground">104 health helpline</a>
+            <div className="space-y-2.5">
+              <p className="label text-[hsl(43_74%_70%)]">Emergency</p>
+              <a href="tel:112" className="block text-primary-foreground/60 transition hover:text-primary-foreground">112 national emergency</a>
+              <a href="tel:108" className="block text-primary-foreground/60 transition hover:text-primary-foreground">108 ambulance</a>
+              <a href="tel:104" className="block text-primary-foreground/60 transition hover:text-primary-foreground">104 health helpline</a>
             </div>
           </div>
         </div>
-        <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-3 border-t px-4 py-5 text-[12px] text-muted-foreground sm:px-6">
+        <div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-3 border-t border-primary-foreground/10 px-4 py-6 text-[12px] text-primary-foreground/70 sm:px-6">
           <p>© {new Date().getFullYear()} GramHealth · repository name MediBuddy</p>
           <p className="font-mono">Sample data: Synthea 1K, remapped to five communities</p>
         </div>

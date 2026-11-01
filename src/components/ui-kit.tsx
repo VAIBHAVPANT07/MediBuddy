@@ -14,7 +14,7 @@ export function Logo({ as = 'span', className, mark = true }: { as?: 'span' | 'd
           <path d="M12 17v5M9.5 19.5h5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" opacity=".55" />
         </svg>
       )}
-      <span className="display text-[19px] leading-none tracking-[-0.03em]">GramHealth</span>
+      <span className="display text-[20px] leading-none tracking-[-0.01em]">GramHealth</span>
     </>
   );
   const Wrapper = as === 'div' ? 'div' : 'span';
@@ -138,7 +138,7 @@ export function Stat({
 }) {
   const tones = {
     default: 'bg-card',
-    role: 'bg-role text-white',
+    role: 'bg-role text-primary-foreground',
     queued: 'bg-queued/10',
     synced: 'bg-synced/15',
     alert: 'bg-alert/10',
@@ -146,12 +146,12 @@ export function Stat({
   const inner = (
     <div className={cn('flex h-full flex-col justify-between gap-6 rounded-lg border p-5 text-left transition', tones[tone], tone === 'default' && 'bg-card', to && 'hover:border-role/40')}>
       <div className="flex items-start justify-between gap-3">
-        <p className={cn('label', tone === 'role' && 'text-white/70')}>{label}</p>
-        {icon && <span className={cn('shrink-0', tone === 'role' ? 'text-white/80' : 'text-role')}>{icon}</span>}
+        <p className={cn('label', tone === 'role' && 'text-primary-foreground/80')}>{label}</p>
+        {icon && <span className={cn('shrink-0', tone === 'role' ? 'text-primary-foreground/90' : 'text-role')}>{icon}</span>}
       </div>
       <div>
-        <p className={cn('display text-[34px] leading-none tracking-[-0.03em]', tone === 'role' && 'text-white')} data-numeric="tabular">{value}</p>
-        {hint && <p className={cn('mt-2 text-[13px] leading-snug', tone === 'role' ? 'text-white/75' : 'text-muted-foreground')}>{hint}</p>}
+        <p className={cn('display text-[34px] leading-none tracking-[-0.01em]', tone === 'role' && 'text-primary-foreground')} data-numeric="tabular">{value}</p>
+        {hint && <p className={cn('mt-2 text-[13px] leading-snug', tone === 'role' ? 'text-primary-foreground/85' : 'text-muted-foreground')}>{hint}</p>}
       </div>
     </div>
   );
@@ -166,11 +166,11 @@ export function Stat({
 
 const chipTones = {
   neutral: 'bg-muted text-muted-foreground',
-  good: 'bg-synced/25 text-[hsl(154_60%_20%)]',
-  warn: 'bg-queued/20 text-[hsl(36_80%_28%)]',
+  good: 'bg-synced/20 text-[hsl(96_40%_22%)]',
+  warn: 'bg-queued/20 text-[hsl(32_78%_27%)]',
   bad: 'bg-alert/15 text-alert',
   role: 'bg-role/10 text-role',
-  dark: 'bg-white/10 text-white/80',
+  dark: 'bg-primary-foreground/10 text-primary-foreground/80',
 };
 
 export function Chip({ tone = 'neutral', children, className }: { tone?: keyof typeof chipTones; children: ReactNode; className?: string }) {
